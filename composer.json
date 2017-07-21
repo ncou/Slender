@@ -1,11 +1,16 @@
 {
     "name": "ryannerd/slender",
     "type": "library",
-    "description": "This is a fork of Slim that enforces PHP 7.1+ conventions. Slim/Slender is a PHP micro framework that helps you quickly write simple yet powerful RESTful APIs",
+    "description": "This is a 'fork' of Slim that enforces PHP 7.1+ conventions. Slender/Slim is a PHP micro framework that helps you quickly write simple yet powerful RESTful APIs",
     "keywords": ["framework","micro","api","router","rest","restful"],
-    "homepage": "https://slimframework.com",
+    "homepage": "https://github.com/RyanNerd/Slender/wiki/Slender",
     "license": "MIT",
     "authors": [
+        {
+            "name": "Ryan Jentzsch",
+            "email": "ryan.jentzsch@gmail.com",
+            "role": "Slender Developer - other authors listed below are Slim developers to which I am very grateful"
+        },
         {
             "name": "Josh Lockhart",
             "email": "hello@joshlockhart.com",
@@ -25,11 +30,6 @@
             "name": "Gabriel Manricks",
             "email": "gmanricks@me.com",
             "homepage": "http://gabrielmanricks.com"
-        },
-        {
-            "name": "Ryan Jentzsch",
-            "email": "ryan.jentzsch@gmail.com",
-            "role": "Slender Developer - other authors listed above are Slim developers to which I am very grateful"
         }
     ],
     "require": {
