@@ -16,7 +16,8 @@ These are the primary differences between Slim and Slender:
   
   This is necessary because Slim-Bridge extends Slim and (of course) not Slender.
 - Slender tries (but does not guarantee) to keep up with changes to the Slim 3.x branch.
-- Work is starting on Slim 4.x as features and bug fixes are added Slender may try to these if it makes sense to do so.
+- Work is starting on Slim 4.x as features and bug fixes are added to Slim 3.x/4.x 
+  Slender may try to these if it makes sense to do so.
 
 ## Why use Slender instead of Slim?
 
@@ -93,6 +94,10 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 Learn more at these links:
 
+**Slender**
+- [Wiki](https://github.com/RyanNerd/Slender/wiki/Slender)
+
+**Slim**
 - [Website](https://www.slimframework.com)
 - [Documentation](https://www.slimframework.com/docs/start/installation.html)
 - [Support Forum](http://discourse.slimframework.com)
@@ -101,7 +106,7 @@ Learn more at these links:
 
 ## Security
 
-If you discover security related issues, please email security@slimframework.com instead of using the issue tracker.
+If you discover security related issues, please email slender-issues@outlook.com instead of using the issue tracker.
 
 ## Credits
 **Slender** 
