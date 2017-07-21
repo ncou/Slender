@@ -1,0 +1,64 @@
+{
+    "name": "ryannerd/slender",
+    "type": "library",
+    "description": "This is a fork of Slim that enforces PHP 7.1+ conventions. Slim/Slender is a PHP micro framework that helps you quickly write simple yet powerful RESTful APIs",
+    "keywords": ["framework","micro","api","router","rest","restful"],
+    "homepage": "https://slimframework.com",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Josh Lockhart",
+            "email": "hello@joshlockhart.com",
+            "homepage": "https://joshlockhart.com"
+        },
+        {
+            "name": "Andrew Smith",
+            "email": "a.smith@silentworks.co.uk",
+            "homepage": "http://silentworks.co.uk"
+        },
+        {
+            "name": "Rob Allen",
+            "email": "rob@akrabat.com",
+            "homepage": "http://akrabat.com"
+        },
+        {
+            "name": "Gabriel Manricks",
+            "email": "gmanricks@me.com",
+            "homepage": "http://gabrielmanricks.com"
+        },
+        {
+            "name": "Ryan Jentzsch",
+            "email": "ryan.jentzsch@gmail.com",
+            "role": "Slender Developer - other authors listed above are Slim developers to which I am very grateful"
+        }
+    ],
+    "require": {
+        "php": ">=7.1.0",
+        "psr/http-message": "^1.0",
+        "nikic/fast-route": "^1.0",
+        "container-interop/container-interop": "^1.2",
+        "psr/container": "^1.0",
+        "php-di/php-di": "^5.1"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^2.5",
+        "phpunit/phpunit": "^6.2"
+    },
+    "provide": {
+        "psr/http-message-implementation": "1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Slender\\": "Slender",
+            "Slender\\Utility\\": "Slender/Utilities"
+        }
+    },
+    "scripts": {
+        "test": [
+            "@phpunit",
+            "@phpcs"
+        ],
+        "phpunit": "php vendor/bin/phpunit",
+        "phpcs": "php vendor/bin/phpcs"
+    }
+}
