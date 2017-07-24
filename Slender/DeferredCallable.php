@@ -40,8 +40,7 @@ class DeferredCallable
         if ($callable instanceof Closure) {
             $callable = $callable->bindTo($this->container);
         }
-
         $args = func_get_args();
-        return $callable(...$args);
+        return call_user_func_array($callable, $args);
     }
 }

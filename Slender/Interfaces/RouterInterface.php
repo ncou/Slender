@@ -25,6 +25,7 @@ interface RouterInterface
     // array keys from route result
     public const DISPATCH_STATUS = 0;
     public const ALLOWED_METHODS = 1;
+    public const ROUTE_ARGUMENTS = 2;
 
     /**
      * Add route
