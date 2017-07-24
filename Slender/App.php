@@ -304,6 +304,8 @@ class App
             $response = $this->process($this->container->get('request'), $response);
         } catch (InvalidMethodException $e) {
             $response = $this->processInvalidMethod($e->getRequest(), $response);
+        } catch (Exception $e) {
+            throw $e;
         }
 
         if (!$silent) {
@@ -327,12 +329,7 @@ class App
     ): ResponseInterface {
         assert(Library::valid_num_args());
 
-        /** @var Request $request */
         $router = $this->container->get('router');
-        if (is_callable([$request->getUri(), 'getBasePath']) && is_callable([$router, 'setBasePath'])) {
-            $router->setBasePath($request->getUri()->getBasePath());
-        }
-
         $request = $this->dispatchRouterAndPrepareRoute($request, $router);
         $routeInfo = $request->getAttribute('routeInfo', [RouterInterface::DISPATCH_STATUS => Dispatcher::NOT_FOUND]);
 
@@ -357,11 +354,12 @@ class App
     {
         assert(Library::valid_num_args());
 
-        // Ensure basePath is set
+        /**
+         * Ensure basePath is set
+         * @var Request $request
+         */
         $router = $this->container->get('router');
-        if (is_callable([$request->getUri(), 'getBasePath']) && is_callable([$router, 'setBasePath'])) {
-            $router->setBasePath($request->getUri()->getBasePath());
-        }
+        $router->setBasePath($request->getUri()->getBasePath());
 
         // Dispatch the Router first if the setting for this is on
         if ($this->container->get('settings')['determineRouteBeforeAppMiddleware'] === true) {
@@ -470,16 +468,16 @@ class App
             $routeInfo = $request->getAttribute('routeInfo');
         }
 
-        if ($routeInfo[0] === Dispatcher::FOUND) {
-            $route = $router->lookupRoute($routeInfo[1]);
+        if ($routeInfo[RouterInterface::DISPATCH_STATUS] === Dispatcher::FOUND) {
+            $route = $router->lookupRoute($routeInfo[RouterInterface::ALLOWED_METHODS]);
             return $route->run($request, $response);
-        } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
+        } elseif ($routeInfo[RouterInterface::DISPATCH_STATUS] === Dispatcher::METHOD_NOT_ALLOWED) {
             if (!$this->container->has('notAllowedHandler')) {
-                throw new MethodNotAllowedException($request, $response, $routeInfo[1]);
+                throw new MethodNotAllowedException($request, $response, $routeInfo[RouterInterface::ALLOWED_METHODS]);
             }
             /** @var callable $notAllowedHandler */
             $notAllowedHandler = $this->container->get('notAllowedHandler');
-            return $notAllowedHandler($request, $response, $routeInfo[1]);
+            return $notAllowedHandler($request, $response, $routeInfo[RouterInterface::ALLOWED_METHODS]);
         }
 
         if (!$this->container->has('notFoundHandler')) {
@@ -546,20 +544,20 @@ class App
 
         $routeInfo = $router->dispatch($request);
 
-        if ($routeInfo[0] === Dispatcher::FOUND) {
+        if ($routeInfo[RouterInterface::DISPATCH_STATUS] === Dispatcher::FOUND) {
             $routeArguments = [];
-            foreach ($routeInfo[2] as $k => $v) {
+            foreach ($routeInfo[RouterInterface::ROUTE_ARGUMENTS] as $k => $v) {
                 $routeArguments[$k] = urldecode($v);
             }
 
-            $route = $router->lookupRoute($routeInfo[1]);
+            $route = $router->lookupRoute($routeInfo[RouterInterface::ALLOWED_METHODS]);
             $route->prepare($request, $routeArguments);
 
             // add route to the request's attributes in case a middleware or handler needs access to the route
             $request = $request->withAttribute('route', $route);
         }
 
-        $routeInfo['request'] = [$request->getMethod(), (string) $request->getUri()];
+        $routeInfo['request'] = [$request->getMethod(), (string)$request->getUri()];
 
         return $request->withAttribute('routeInfo', $routeInfo);
     }

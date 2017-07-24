@@ -16,6 +16,7 @@ namespace Slender\Tests;
 use DI\Container;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Slender\App;
 use Slender\Exception\InvalidMethodException;
 use Slender\Exception\MethodNotAllowedException;
@@ -29,6 +30,7 @@ use Slender\Http\Request;
 use Slender\Http\RequestBody;
 use Slender\Http\Response;
 use Slender\Http\Uri;
+use Slender\Route;
 use Slender\Router;
 use PHPUnit\Framework\TestCase;
 
@@ -832,67 +834,68 @@ class AppTest extends TestCase
 
     public function testAddMiddlewareOnRouteGroup()
     {
-        $this->markTestSkipped('TODO');
+        $this->markTestSkipped();
         $config = include(__DIR__ . '/config.php');
         $config['environment'] = Environment::mock([
             'SCRIPT_NAME' => '/index.php',
             'REQUEST_URI' => '/foo',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $app = new App($config);
+        $app = $this->appFactory($config);
 
         $c = $app->getContainer();
-        $req = $c->get('request');
-        $res = $c->get('response');
+        $request = $c->get('request');
+        $response = $c->get('response');
 
-        $app->group('/foo', function () use ($app, $req, $res) {
-            $app->get('/', function ($req, $res) {
-                return $res->write('Center');
+        $app->group('/foo', function () use ($app, $request, $response) {
+            $app->get('/', function ($request, $response) {
+                return $response->write('Center');
             });
-        })->add(function ($req, $res, $next) {
-            $res->write('In1');
-            $res = $next($req, $res);
-            $res->write('Out1');
+        })->add(function ($request, $response, $next) {
+            $response->write('In1');
+            $response = $next($request, $response);
+            $response->write('Out1');
 
-            return $res;
-        })->add(function ($req, $res, $next) {
-            $res->write('In2');
-            $res = $next($req, $res);
-            $res->write('Out2');
+            return $response;
+        })->add(function ($request, $response, $next) {
+            $response->write('In2');
+            $response = $next($request, $response);
+            $response->write('Out2');
 
-            return $res;
+            return $response;
         });
 
         // Invoke app
-        $app($req, $res);
+        $app($request, $response);
 
-        $this->assertEquals('In2In1CenterOut1Out2', (string)$res->getBody());
+        $this->assertEquals('In2In1CenterOut1Out2', (string)$response->getBody());
     }
 
     public function testAddMiddlewareOnTwoRouteGroup()
     {
-        $this->markTestSkipped('TODO');
+        $this->markTestSkipped();
 
-        $app = new App();
+        $config = include(__DIR__ . '/config.php');
+        $app = new App($config);
 
         $app->group('/foo', function () use ($app) {
             $app->group('/baz', function () use ($app) {
-                $app->get('/', function ($req, $res) {
-                    return $res->write('Center');
+                $app->get('/', function ($request, $response) {
+                    return $response->write('Center');
                 });
-            })->add(function ($req, $res, $next) {
-                $res->write('In2');
-                $res = $next($req, $res);
-                $res->write('Out2');
+            })->add(function ($request, $response, $next) {
+                $response->write('In2');
+                $response = $next($request, $response);
+                $response->write('Out2');
 
-                return $res;
+                return $response;
             });
-        })->add(function ($req, $res, $next) {
-            $res->write('In1');
-            $res = $next($req, $res);
-            $res->write('Out1');
+        })->add(function ($request, $response, $next) {
+            $response->write('In1');
+            $response = $next($request, $response);
+            $response->write('Out1');
 
-            return $res;
+            return $response;
         });
 
         // Prepare request and response objects
@@ -906,46 +909,44 @@ class AppTest extends TestCase
         $cookies = [];
         $serverParams = $env->all();
         $body = new RequestBody();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $response = new Response();
 
         // Invoke app
-        $app($req, $res);
+        $app($request, $response);
 
-        $this->assertEquals('In1In2CenterOut2Out1', (string)$res->getBody());
+        $this->assertEquals('In1In2CenterOut2Out1', (string)$response->getBody());
     }
 
     public function testAddMiddlewareOnRouteAndOnTwoRouteGroup()
     {
-        // TODO: Figure out why required parameter missing when in reality the parameter exists.
-        $this->markTestSkipped('TODO');
-
-        $app = new App();
+        $this->markTestSkipped();
+        $app = $this->appFactory();
 
         $app->group('/foo', function () use ($app) {
             $app->group('/baz', function () use ($app) {
-                $app->get('/', function ($req, $res) {
-                    return $res->write('Center');
-                })->add(function ($req, $res, $next) {
-                    $res->write('In3');
-                    $res = $next($req, $res);
-                    $res->write('Out3');
+                $app->get('/', function ($request, $response) {
+                    return $response->write('Center');
+                })->add(function ($request, $response, $next) {
+                    $response->write('In3');
+                    $response = $next($request, $response);
+                    $response->write('Out3');
 
-                    return $res;
+                    return $response;
                 });
-            })->add(function ($req, $res, $next) {
-                $res->write('In2');
-                $res = $next($req, $res);
-                $res->write('Out2');
+            })->add(function ($request, $response, $next) {
+                $response->write('In2');
+                $response = $next($request, $response);
+                $response->write('Out2');
 
-                return $res;
+                return $response;
             });
-        })->add(function ($req, $res, $next) {
-            $res->write('In1');
-            $res = $next($req, $res);
-            $res->write('Out1');
+        })->add(function ($request, $response, $next) {
+            $response->write('In1');
+            $response = $next($request, $response);
+            $response->write('Out1');
 
-            return $res;
+            return $response;
         });
 
         // Prepare request and response objects
@@ -959,13 +960,13 @@ class AppTest extends TestCase
         $cookies = [];
         $serverParams = $env->all();
         $body = new RequestBody();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $response = new Response();
 
         // Invoke app
-        $app($req, $res);
+        $app($request, $response);
 
-        $this->assertEquals('In1In2In3CenterOut3Out2Out1', (string)$res->getBody());
+        $this->assertEquals('In1In2In3CenterOut3Out2Out1', (string)$response->getBody());
     }
 
 
@@ -1045,8 +1046,6 @@ class AppTest extends TestCase
 
     public function testInvokeWithMatchingRouteWithSetArgument()
     {
-        $this->markTestSkipped('TODO');
-
         $config = include(__DIR__ . '/config.php');
         $config['environment'] = Environment::mock([
             'SCRIPT_NAME' => '/index.php',
@@ -1056,29 +1055,27 @@ class AppTest extends TestCase
 
         $app = new App($config);
         $c = $app->getContainer();
-        $req = $c->get('request');
-        $res = $c->get('response');
+        $request = $c->get('request');
+        $response = $c->get('response');
 
-        $app->get('/foo/bar', function ($req, $res, $args) {
-            return $res->write("Hello {$args['attribute']}");
+        $app->get('/foo/bar', function ($request, $response, $attribute) {
+            return $response->write("Hello $attribute");
         })->setArgument('attribute', 'world!');
 
         // Invoke app
-        $resOut = $app($req, $res);
+        $resOut = $app($request, $response);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals('Hello world!', (string)$res->getBody());
+        $this->assertEquals('Hello world!', (string)$response->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithSetArguments()
     {
-        // TODO: Figure out why required parameter missing when in reality the parameter exists.
-        $this->markTestSkipped('TODO');
-
         $app = new App();
-        $app->get('/foo/bar', function ($req, $res, $args) {
-            return $res->write("Hello {$args['attribute1']} {$args['attribute2']}");
-        })->setArguments(['attribute1' => 'there', 'attribute2' => 'world!']);
+        $attributes = ['attribute1' => 'there', 'attribute2' => 'world!'];
+        $app->get('/foo/bar', function ($request, $response, $attribute1, $attribute2) {
+            return $response->write("Hello $attribute1 $attribute2");
+        })->setArguments($attributes);
 
         // Prepare request and response objects
         $env = Environment::mock([
@@ -1091,24 +1088,28 @@ class AppTest extends TestCase
         $cookies = [];
         $serverParams = $env->all();
         $body = new RequestBody();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $response = new Response();
 
         // Invoke app
-        $resOut = $app($req, $res);
+        $resOut = $app($request, $response);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals('Hello there world!', (string)$res->getBody());
+        $this->assertEquals('Hello there world!', (string)$response->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithNamedParameter()
     {
-        // TODO: Figure out why required parameter missing when in reality the parameter exists.
-        $this->markTestSkipped('TODO');
-
         $app = new App();
-        $app->get('/foo/{name}', function ($req, $res, $args) {
-            return $res->write("Hello {$args['name']}");
+        $app->get('/foo/{name}', function ($request, $response) {
+            /**
+             * @var Request $request
+             * @var Route $route
+             */
+            $route = $request->getAttribute('route');
+            $name = $route->getArgument('name');
+
+            return $response->write("Hello $name");
         });
 
         // Prepare request and response objects
@@ -1122,14 +1123,14 @@ class AppTest extends TestCase
         $cookies = [];
         $serverParams = $env->all();
         $body = new RequestBody();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $response = new Response();
 
         // Invoke app
-        $resOut = $app($req, $res);
+        $resOut = $app($request, $response);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals('Hello test!', (string)$res->getBody());
+        $this->assertEquals('Hello test!', (string)$response->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseArgStrategy()
@@ -1163,27 +1164,26 @@ class AppTest extends TestCase
 
     public function testInvokeWithMatchingRouteWithNamedParameterOverwritesSetArgument()
     {
-        // TODO: Figure out why required parameter missing when in reality the parameter exists.
-        $this->markTestSkipped('TODO');
-
-        putenv('SCRIPT_NAME=/index.php');
-        putenv('REQUEST_URI=/foo/test!');
-        putenv('REQUEST_METHOD=GET');
         $config = include(__DIR__ . '/config.php');
-
+        $config['environment'] = function () {
+            return Environment::mock([
+                'SCRIPT_NAME' => '/index.php',
+                'REQUEST_URI' => '/foo/test!',
+                'REQUEST_METHOD' => 'GET']);
+        };
         $app = new App($config);
-        $app->get('/foo/{name}', function ($req, $res, $args) {
-            return $res->write("Hello {$args['extra']} {$args['name']}");
+        $app->get('/foo/{name}', function ($request, $response, $extra, $name) {
+            return $response->write("Hello $extra $name");
         })->setArguments(['extra' => 'there', 'name' => 'world!']);
 
         // Invoke app
         $c = $app->getContainer();
-        $req = $c->get('request');
-        $res = $c->get('response');
-        $resOut = $app($req, $res);
+        $request = $c->get('request');
+        $response = $c->get('response');
+        $resOut = $app($request, $response);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals('Hello there test!', (string)$res->getBody());
+        $this->assertEquals('Hello there test!', (string)$response->getBody());
     }
 
     public function testInvokeWithoutMatchingRoute()
@@ -1223,73 +1223,12 @@ class AppTest extends TestCase
         */
     }
 
-    public function testInvokeWithDICallable()
-    {
-        $this->markTestSkipped('TODO: InvalidArgumentException');
-
-        // Prepare request and response objects
-        $config = include(__DIR__ . '/config.php');
-        $config['environment'] = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $config['foo'] = function (Container $c) {
-            $res = $c->get('response');
-            $res->write('Hello');
-        };
-
-        $app = new App($config);
-        $container = $app->getContainer();
-
-        $app->get('/foo', $container->get('foo'));
-
-        // Invoke app
-        $req = $container->get('request');
-        $res = $container->get('response');
-        $resOut = $app($req, $res);
-
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals('Hello', (string)$res->getBody());
-    }
-
-    public function testInvokeFunctionName()
-    {
-        $this->markTestSkipped('TODO: Unable to invoke the callable');
-        $config = include(__DIR__ . '/config.php');
-        $config['environment'] = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $app = new App($config);
-
-        $c = $app->getContainer();
-        $req = $c->get('request');
-        $res = $c->get('response');
-
-        function handle($req, $res)
-        {
-            $res->write('foo');
-
-            return $res;
-        }
-
-        $app->get('/foo', __NAMESPACE__ . '\handle');
-
-        $app($req, $res);
-
-        $this->assertEquals('foo', (string)$res->getBody());
-    }
-
     public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArguments()
     {
-        // TODO: Figure out why required parameter missing when in reality the parameter exists.
-        $this->markTestSkipped();
-
         $app = new App();
-        $app->get('/foo/{name}', function ($req, $res, $args) {
-            return $res->write($req->getAttribute('one') . $args['name']);
+        $app->get('/foo/{name}', function ($request, $response) {
+            $route = $request->getAttribute('route');
+            return $response->write($request->getAttribute('one') . $route->getArgument('name'));
         });
 
         // Prepare request and response objects
@@ -1303,13 +1242,13 @@ class AppTest extends TestCase
         $cookies = [];
         $serverParams = $env->all();
         $body = new RequestBody();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $req = $req->withAttribute("one", 1);
-        $res = new Response();
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $request = $request->withAttribute("one", 1);
+        $response = new Response();
 
 
         // Invoke app
-        $resOut = $app($req, $res);
+        $resOut = $app($request, $response);
         $this->assertEquals('1rob', (string)$resOut->getBody());
     }
 
@@ -1343,14 +1282,11 @@ class AppTest extends TestCase
 
     public function testInvokeSubRequest()
     {
-        // TODO: Figure out why required parameter missing when in reality the parameter exists.
-        $this->markTestSkipped();
+        $app = $this->appFactory();
+        $app->get('/foo', function ($request, $response) {
+            $response->write('foo');
 
-        $app = new App();
-        $app->get('/foo', function ($req, $res) {
-            $res->write('foo');
-
-            return $res;
+            return $response;
         });
 
         $newResponse = $subReq = $app->subRequest('GET', '/foo');
@@ -1361,14 +1297,11 @@ class AppTest extends TestCase
 
     public function testInvokeSubRequestWithQuery()
     {
-        // TODO: Figure out why required parameter missing when in reality the parameter exists.
-        $this->markTestSkipped();
+        $app =$this->appFactory();
+        $app->get('/foo', function ($request, $response) {
+            $response->write("foo {$request->getParam('bar')}");
 
-        $app = new App();
-        $app->get('/foo', function ($req, $res) {
-            $res->write("foo {$req->getParam('bar')}");
-
-            return $res;
+            return $response;
         });
 
         $subReq = $app->subRequest('GET', '/foo', 'bar=bar');
@@ -1378,14 +1311,11 @@ class AppTest extends TestCase
 
     public function testInvokeSubRequestUsesResponseObject()
     {
-        // TODO: Figure out why required parameter missing when in reality the parameter exists.
-        $this->markTestSkipped();
+        $app = $this->appFactory();
+        $app->get('/foo', function ($request, $response) {
+            $response->write("foo {$request->getParam('bar')}");
 
-        $app = new App();
-        $app->get('/foo', function ($req, $res) {
-            $res->write("foo {$req->getParam('bar')}");
-
-            return $res;
+            return $response;
         });
 
         $resp = new Response(201);
@@ -1399,13 +1329,9 @@ class AppTest extends TestCase
 
     public function testRun()
     {
-        // TODO: Figure out why required parameter missing when in reality the parameter exists.
-        $this->markTestSkipped();
+        $app = $this->appFactory();
 
-        $config = include(__DIR__ . '/config.php');
-        $app = new App($config);
-
-        $app->get('/foo', function ($req, $res) {
+        $app->get('/foo', function ($request, $response) {
             echo 'bar';
         });
 
@@ -1418,21 +1344,17 @@ class AppTest extends TestCase
 
     public function testRespond()
     {
-        // TODO: Figure out why required parameter missing when in reality the parameter exists.
-        $this->markTestSkipped();
-
-        $config = include(__DIR__ . '/config.php');
-        $app = new App($config);
-        $app->get('/foo', function ($req, $res) {
-            $res->write('Hello');
-            return $res;
+        $app = $this->appFactory();
+        $app->get('/foo', function ($request, $response) {
+            $response->write('Hello');
+            return $response;
         });
 
         // Invoke app
         $c = $app->getContainer();
-        $req = $c->get('request');
-        $res = $c->get('response');
-        $resOut = $app($req, $res);
+        $request = $c->get('request');
+        $response = $c->get('response');
+        $resOut = $app($request, $response);
 
         $app->respond($resOut);
 
@@ -1442,22 +1364,19 @@ class AppTest extends TestCase
 
     public function testRespondWithHeaderNotSent()
     {
-        // TODO: Figure out why required parameter missing when in reality the parameter exists.
-        $this->markTestSkipped();
 
-        $config = include(__DIR__ . '/config.php');
-        $app = new App($config);
-        $app->get('/foo', function ($req, $res) {
-            $res->write('Hello');
+        $app = $this->appFactory();
+        $app->get('/foo', function ($request, $response) {
+            $response->write('Hello');
 
-            return $res;
+            return $response;
         });
 
         // Invoke app
         $c = $app->getContainer();
-        $req = $c->get('request');
-        $res = $c->get('response');
-        $resOut = $app($req, $res);
+        $request = $c->get('request');
+        $response = $c->get('response');
+        $resOut = $app($request, $response);
 
         $app->respond($resOut);
 
@@ -1467,26 +1386,27 @@ class AppTest extends TestCase
 
     public function testRespondNoContent()
     {
-        // TODO: Figure out why required parameter missing when in reality the parameter exists.
-        $this->markTestSkipped();
-
-        $config = include(__DIR__ . '/config.php');
-        $config['environment'] = Environment::mock([
+        $env = Environment::mock([
             'SCRIPT_NAME' => '/index.php',
             'REQUEST_URI' => '/foo',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $app = new App($config);
-        $app->get('/foo', function ($req, $res) {
-            $res = $res->withStatus(204);
-            return $res;
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $response = new Response();
+
+        $app = new App();
+        $app->get('/foo', function ($request, $response) {
+            $response = $response->withStatus(204);
+            return $response;
         });
 
         // Invoke app
-        $c = $app->getContainer();
-        $req = $c->get('request');
-        $res = $c->get('response');
-        $resOut = $app($req, $res);
+        $resOut = $app($request, $response);
 
         $app->respond($resOut);
 
@@ -1498,9 +1418,6 @@ class AppTest extends TestCase
 
     public function testRespondWithPaddedStreamFilterOutput()
     {
-        // TODO: Figure out why required parameter missing when in reality the parameter exists.
-        $this->markTestSkipped();
-
         $availableFilter = stream_get_filters();
 
         if (version_compare(phpversion(), '7.0.0', '>=')) {
@@ -1522,8 +1439,8 @@ class AppTest extends TestCase
                 'REQUEST_URI' => '/foo',
                 'REQUEST_METHOD' => 'GET',
             ]);
-            $app = new App($config);
-            $app->get('/foo', function ($req, $res) use ($specificFilterName, $specificUnfilterName) {
+            $app = $this->appFactory($config);
+            $app->get('/foo', function ($request, $response) use ($specificFilterName, $specificUnfilterName) {
                 $key = base64_decode('xxxxxxxxxxxxxxxx');
                 $iv = base64_decode('Z6wNDk9LogWI4HYlRu0mng==');
 
@@ -1546,15 +1463,15 @@ class AppTest extends TestCase
                     'iv' => $iv
                 ]);
 
-                return $res->withHeader('Content-Length', $length)->withBody(new Body($stream));
+                return $response->withHeader('Content-Length', $length)->withBody(new Body($stream));
             });
 
 
             // Invoke app
             $c = $app->getContainer();
-            $req = $c->get('request');
-            $res = $c->get('response');
-            $resOut = $app($req, $res);
+            $request = $c->get('request');
+            $response = $c->get('response');
+            $resOut = $app($request, $response);
             $app->respond($resOut);
 
             $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
@@ -1581,19 +1498,32 @@ class AppTest extends TestCase
         $this->expectOutputString("Hello");
     }
 
+    public function testRespondKnownLength()
+    {
+        $app = new App();
+        $body_stream = fopen('php://temp', 'r+');
+        $response = new Response();
+        $body = $this->getMockBuilder("\Slender\Http\Body")
+            ->setMethods(["getSize"])
+            ->setConstructorArgs([$body_stream])
+            ->getMock();
+        fwrite($body_stream, "Hello");
+        rewind($body_stream);
+        $body->method("getSize")->willReturn(5);
+        $response = $response->withBody($body);
+        $app->respond($response);
+        $this->expectOutputString("Hello");
+    }
+
     public function testResponseWithStreamReadYieldingLessBytesThanAsked()
     {
-        // TODO: Figure out why required parameter missing when in reality the parameter exists.
-        $this->markTestSkipped();
-
         $config = include(__DIR__ . '/config.php');
         $config['settings.responseChunkSize'] = Mocks\SmallChunksStream::CHUNK_SIZE * 2;
+        $app = $this->appFactory($config);
+        $app->get('/foo', function ($request, $response) {
+            $response->write('Hello');
 
-        $app = new App($config);
-        $app->get('/foo', function ($req, $res) {
-            $res->write('Hello');
-
-            return $res;
+            return $response;
         });
 
         // Prepare request and response objects
@@ -1607,11 +1537,11 @@ class AppTest extends TestCase
         $cookies = [];
         $serverParams = $env->all();
         $body = new Mocks\SmallChunksStream();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = (new Response())->withBody($body);
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $response = (new Response())->withBody($body);
 
         // Invoke app
-        $resOut = $app($req, $res);
+        $resOut = $app($request, $response);
 
         $app->respond($resOut);
 
@@ -1682,16 +1612,15 @@ class AppTest extends TestCase
     {
         $config = include(__DIR__ . '/config.php');
         unset($config['errorHandler']);
-
         $app = $this->appFactory($config);
 
-        $app->get('/foo', function ($req, $res, $args) {
-            return $res;
+        $app->get('/foo', function ($request, $response, $args) {
+            return $response;
         });
-        $app->add(function ($req, $res, $args) {
+        $app->add(function ($request, $response, $args) {
             throw new \Exception();
         });
-        $res = $app->run(true);
+        $response = $app->run(true);
     }
 
     public function testRunSlimException()
@@ -1804,16 +1733,19 @@ class AppTest extends TestCase
 
     public function testAppRunWithdetermineRouteBeforeAppMiddleware()
     {
-        // TODO: Figure out why required parameter missing when in reality the parameter exists.
-        $this->markTestSkipped();
-
         $config = include(__DIR__ . '/config.php');
         $config['settings.determineRouteBeforeAppMiddleware'] = true;
-        $app = $this->appFactory($config);
+        $app = new App($config);
 
-        $app->get('/foo', function ($req, $res) {
-            return $res->write("Test");
-        });
+        $getHandler = new class
+        {
+            public function __invoke($request, $response)
+            {
+                return $response->write("Test");
+            }
+        };
+
+        $app->get('/foo', $getHandler);
 
         $resOut = $app->run(true);
         $resOut->getBody()->rewind();
@@ -1978,6 +1910,22 @@ class AppTest extends TestCase
     {
         $config = include(__DIR__ . '/config.php');
         $config['environment'] = Environment::mock(['REQUEST_URI' => '/', 'REQUEST_METHOD' => 'BADMTHD']);
+
+        $app = new App($config);
+        $app->get('/', function () {
+            // stubbed action to give us a route at /
+        });
+
+        $resOut = $app->run(true);
+
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
+        $this->assertEquals(405, $resOut->getStatusCode());
+    }
+
+    public function testUnsupportedMethodWithRoute2()
+    {
+        $config = include(__DIR__ . '/config.php');
+        $config['environment'] = Environment::mock(['REQUEST_URI' => '/', 'REQUEST_METHOD' => 'B@DMTHD']);
 
         $app = new App($config);
         $app->get('/', function () {

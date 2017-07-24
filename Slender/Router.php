@@ -24,6 +24,8 @@ use FastRoute\RouteParser\Std as StdParser;
 use Slender\Interfaces\RouteGroupInterface;
 use Slender\Interfaces\RouterInterface;
 use Slender\Interfaces\RouteInterface;
+use function FastRoute\cachedDispatcher;
+use function FastRoute\simpleDispatcher;
 
 /**
  * Router
@@ -45,7 +47,7 @@ class Router implements RouterInterface
     /**
      * Parser
      *
-     * @var \FastRoute\RouteParser
+     * @var RouteParser
      */
     protected $routeParser;
 
@@ -84,7 +86,7 @@ class Router implements RouterInterface
     protected $routeGroups = [];
 
     /**
-     * @var \FastRoute\Dispatcher
+     * @var Dispatcher
      */
     protected $dispatcher;
 
@@ -146,7 +148,8 @@ class Router implements RouterInterface
          *
          * @var Route $route
          */
-        $route = $this->createRoute($methods, $pattern, $handler);
+        // $route = $this->createRoute($methods, $pattern, $handler);
+        $route = new Route($methods, $pattern, $handler);
         $this->routes[$route->getIdentifier()] = $route;
         $this->routeCounter++;
 
@@ -167,20 +170,6 @@ class Router implements RouterInterface
         );
     }
 
-    /**
-     * Create a new Route object
-     */
-    protected function createRoute(array $methods, string $pattern, $callable): RouteInterface
-    {
-        $route = new Route($methods, $pattern, $callable, $this->routeGroups, $this->routeCounter);
-        if (!empty($this->container)) {
-            $route->setContainer($this->container);
-        }
-
-        return $route;
-    }
-
-
     protected function createDispatcher(): Dispatcher
     {
         if ($this->dispatcher) {
@@ -194,12 +183,12 @@ class Router implements RouterInterface
         };
 
         if ($this->cacheFile !== '') {
-            $this->dispatcher = \FastRoute\cachedDispatcher($routeDefinitionCallback, [
+            $this->dispatcher = cachedDispatcher($routeDefinitionCallback, [
                 'routeParser' => $this->routeParser,
                 'cacheFile' => ($this->cacheFile !== '' ? $this->cacheFile : false),
             ]);
         } else {
-            $this->dispatcher = \FastRoute\simpleDispatcher($routeDefinitionCallback, [
+            $this->dispatcher = simpleDispatcher($routeDefinitionCallback, [
                 'routeParser' => $this->routeParser,
             ]);
         }
@@ -207,6 +196,9 @@ class Router implements RouterInterface
         return $this->dispatcher;
     }
 
+    /**
+     * Only used for testing so we don't need to make the $dispatcher property public.
+     */
     public function setDispatcher(Dispatcher $dispatcher): void
     {
         $this->dispatcher = $dispatcher;
@@ -238,6 +230,7 @@ class Router implements RouterInterface
      */
     public function removeNamedRoute(string $name): void
     {
+        /** @var Route $route */
         $route = $this->getNamedRoute($name);
 
         // no exception, route exists, now remove by id
