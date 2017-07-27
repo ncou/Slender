@@ -24,7 +24,7 @@ use UnexpectedValueException;
  * Middleware
  *
  * This is an internal class that enables concentric middleware layers. This
- * class is an implementation detail and is used only inside of the Slim
+ * class is an implementation detail and is used only inside of the Slender
  * application; it is not visible to—and should not be used by—end users.
  */
 trait MiddlewareAwareTrait

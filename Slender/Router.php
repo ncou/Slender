@@ -30,7 +30,7 @@ use function FastRoute\simpleDispatcher;
 /**
  * Router
  *
- * This class organizes Slim application route objects. It is responsible
+ * This class organizes Slender application route objects. It is responsible
  * for registering route objects, assigning names to route objects,
  * finding routes that match the current HTTP request, and creating
  * URLs for a named route.
@@ -130,7 +130,7 @@ class Router implements RouterInterface
     /**
      * Add route
      */
-    public function map(array $methods, string $pattern, $handler): RouteInterface
+    public function map(array $methods, string $pattern, $handler): Route
     {
         if (!(is_string($handler) || is_callable($handler))) {
             throw new InvalidArgumentException();
@@ -145,11 +145,8 @@ class Router implements RouterInterface
 
         /**
          * Add route
-         *
-         * @var Route $route
          */
-        // $route = $this->createRoute($methods, $pattern, $handler);
-        $route = new Route($methods, $pattern, $handler);
+        $route = new Route($methods, $pattern, $handler, $this->routeGroups, $this->routeCounter);
         $this->routes[$route->getIdentifier()] = $route;
         $this->routeCounter++;
 
@@ -253,7 +250,7 @@ class Router implements RouterInterface
     /**
      * Add a route group to the array
      */
-    public function pushGroup(string $pattern, $callable): RouteGroupInterface
+    public function pushGroup(string $pattern, $callable): RouteGroup
     {
         $group = new RouteGroup($pattern, $callable);
         array_push($this->routeGroups, $group);

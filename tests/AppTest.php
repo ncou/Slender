@@ -834,7 +834,8 @@ class AppTest extends TestCase
 
     public function testAddMiddlewareOnRouteGroup()
     {
-        $this->markTestSkipped();
+        // $this->markTestSkipped();
+
         $config = include(__DIR__ . '/config.php');
         $config['environment'] = Environment::mock([
             'SCRIPT_NAME' => '/index.php',
@@ -920,11 +921,12 @@ class AppTest extends TestCase
 
     public function testAddMiddlewareOnRouteAndOnTwoRouteGroup()
     {
-        $this->markTestSkipped();
         $app = $this->appFactory();
+        $c = $app->getContainer();
 
         $app->group('/foo', function () use ($app) {
             $app->group('/baz', function () use ($app) {
+                $c = $app->getContainer();
                 $app->get('/', function ($request, $response) {
                     return $response->write('Center');
                 })->add(function ($request, $response, $next) {

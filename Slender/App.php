@@ -79,6 +79,11 @@ class App
      */
     private $container;
 
+    /**
+     * @var Router
+     */
+    protected $router;
+
     /********************************************************************************
      * Constructor
      *******************************************************************************/
@@ -100,6 +105,8 @@ class App
         $containerBuilder->addDefinitions($definitions);
         $this->configureContainer($containerBuilder);
         $this->container = $containerBuilder->build();
+
+        $this->router = $this->container->get('router');
     }
 
     /**
@@ -252,7 +259,7 @@ class App
         }
 
         /** @var Router $route */
-        $route = $this->container->get('router')->map($methods, $pattern, $callable);
+        $route = $this->router->map($methods, $pattern, $callable);
         if (is_callable([$route, 'setContainer'])) {
             $route->setContainer($this->container);
         }
@@ -276,11 +283,10 @@ class App
     {
         assert(Library::valid_num_args());
 
-        /** @var RouteGroup $group */
-        $group = $this->container->get('router')->pushGroup($pattern, $callable);
+        $group = $this->router->pushGroup($pattern, $callable);
         $group->setContainer($this->container);
         $group($this);
-        $this->container->get('router')->popGroup();
+        $this->router->popGroup();
         return $group;
     }
 
@@ -299,6 +305,7 @@ class App
         assert(Library::valid_num_args());
 
         $response = $this->container->get('response');
+
 
         try {
             $response = $this->process($this->container->get('request'), $response);
@@ -329,7 +336,7 @@ class App
     ): ResponseInterface {
         assert(Library::valid_num_args());
 
-        $router = $this->container->get('router');
+        $router = $this->router;
         $request = $this->dispatchRouterAndPrepareRoute($request, $router);
         $routeInfo = $request->getAttribute('routeInfo', [RouterInterface::DISPATCH_STATUS => Dispatcher::NOT_FOUND]);
 
@@ -358,7 +365,7 @@ class App
          * Ensure basePath is set
          * @var Request $request
          */
-        $router = $this->container->get('router');
+        $router = $this->router;
         $router->setBasePath($request->getUri()->getBasePath());
 
         // Dispatch the Router first if the setting for this is on
@@ -460,7 +467,7 @@ class App
         $routeInfo = $request->getAttribute('routeInfo');
 
         /** @var \Slender\Interfaces\RouterInterface $router */
-        $router = $this->container->get('router');
+        $router = $this->router;
 
         // If router hasn't been dispatched or the URI changed then dispatch
         if (null === $routeInfo || ($routeInfo['request'] !== [$request->getMethod(), (string) $request->getUri()])) {

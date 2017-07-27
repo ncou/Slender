@@ -15,7 +15,6 @@ namespace Slender;
 
 use Closure;
 use Psr\Container\ContainerInterface;
-
 class DeferredCallable
 {
     use CallableResolverAwareTrait;

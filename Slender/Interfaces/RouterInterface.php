@@ -16,6 +16,8 @@ namespace Slender\Interfaces;
 use RuntimeException;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
+use Slender\Route;
+use Slender\RouteGroup;
 
 /**
  * Router Interface
@@ -36,7 +38,7 @@ interface RouterInterface
      *
      * @return RouteInterface
      */
-    public function map(array $methods, string $pattern, $handler): RouteInterface;
+    public function map(array $methods, string $pattern, $handler): Route;
 
     /**
      * Dispatch router for HTTP request
@@ -47,7 +49,7 @@ interface RouterInterface
     /**
      * Add a route group to the array
      */
-    public function pushGroup(string $pattern, $callable): RouteGroupInterface;
+    public function pushGroup(string $pattern, $callable): RouteGroup;
 
     /**
      * Removes the last route group from the array
