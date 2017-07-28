@@ -46,12 +46,12 @@ class AppTest extends TestCase
      */
     public function testContainerInterfaceException()
     {
-        $app = new App('');
+        $app = $this->appFactory('');
     }
 
     public function testIssetInContainer()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $c = $app->getContainer();
         $router = $c->get('router');
         $this->assertTrue(isset($router));
@@ -61,7 +61,7 @@ class AppTest extends TestCase
     {
         $this->expectException(\AssertionError::class);
 
-        $app = new App();
+        $app = $this->appFactory();
         $callable = function () {
             return false;
         };
@@ -79,7 +79,7 @@ class AppTest extends TestCase
         $callable = function ($req, $res) {
             // Do something
         };
-        $app = new App();
+        $app = $this->appFactory();
         $route = $app->get($path, $callable);
 
         $this->assertInstanceOf('\Slender\Route', $route);
@@ -92,7 +92,7 @@ class AppTest extends TestCase
         $callable = function ($req, $res) {
             // Do something
         };
-        $app = new App();
+        $app = $this->appFactory();
         $route = $app->post($path, $callable);
 
         $this->assertInstanceOf('\Slender\Route', $route);
@@ -105,7 +105,8 @@ class AppTest extends TestCase
         $callable = function ($req, $res) {
             // Do something
         };
-        $app = new App();
+
+        $app = $this->appFactory();
         $route = $app->put($path, $callable);
 
         $this->assertInstanceOf('\Slender\Route', $route);
@@ -118,7 +119,7 @@ class AppTest extends TestCase
         $callable = function ($req, $res) {
             // Do something
         };
-        $app = new App();
+        $app = $this->appFactory();
         $route = $app->patch($path, $callable);
 
         $this->assertInstanceOf('\Slender\Route', $route);
@@ -131,7 +132,7 @@ class AppTest extends TestCase
         $callable = function ($req, $res) {
             // Do something
         };
-        $app = new App();
+        $app = $this->appFactory();
         $route = $app->delete($path, $callable);
 
         $this->assertInstanceOf('\Slender\Route', $route);
@@ -144,7 +145,7 @@ class AppTest extends TestCase
         $callable = function ($req, $res) {
             // Do something
         };
-        $app = new App();
+        $app = $this->appFactory();
         $route = $app->options($path, $callable);
 
         $this->assertInstanceOf('\Slender\Route', $route);
@@ -157,7 +158,7 @@ class AppTest extends TestCase
         $callable = function ($req, $res) {
             // Do something
         };
-        $app = new App();
+        $app = $this->appFactory();
         $route = $app->any($path, $callable);
 
         $this->assertInstanceOf('\Slender\Route', $route);
@@ -175,7 +176,7 @@ class AppTest extends TestCase
         $callable = function ($req, $res) {
             // Do something
         };
-        $app = new App();
+        $app = $this->appFactory();
         $route = $app->map(['GET', 'POST'], $path, $callable);
 
         $this->assertInstanceOf('\Slender\Route', $route);
@@ -188,7 +189,7 @@ class AppTest extends TestCase
      *******************************************************************************/
     public function testSegmentRouteThatDoesNotEndInASlash()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->get('/foo', function ($req, $res) {
             // Do something
         });
@@ -199,7 +200,7 @@ class AppTest extends TestCase
 
     public function testSegmentRouteThatEndsInASlash()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->get('/foo/', function ($req, $res) {
             // Do something
         });
@@ -210,7 +211,7 @@ class AppTest extends TestCase
 
     public function testSegmentRouteThatDoesNotStartWithASlash()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->get('foo', function ($req, $res) {
             // Do something
         });
@@ -221,7 +222,7 @@ class AppTest extends TestCase
 
     public function testSingleSlashRoute()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->get('/', function ($req, $res) {
             // Do something
         });
@@ -232,7 +233,7 @@ class AppTest extends TestCase
 
     public function testEmptyRoute()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->get('', function ($req, $res) {
             // Do something
         });
@@ -246,7 +247,7 @@ class AppTest extends TestCase
      *******************************************************************************/
     public function testGroupSegmentWithSegmentRouteThatDoesNotEndInASlash()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('/foo', function () use ($app) {
             $app->get('/bar', function ($req, $res) {
                 // Do something
@@ -259,7 +260,7 @@ class AppTest extends TestCase
 
     public function testGroupSegmentWithSegmentRouteThatEndsInASlash()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('/foo', function () use ($app) {
             $app->get('/bar/', function ($req, $res) {
                 // Do something
@@ -272,7 +273,7 @@ class AppTest extends TestCase
 
     public function testGroupSegmentWithSingleSlashRoute()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('/foo', function () use ($app) {
             $app->get('/', function ($req, $res) {
                 // Do something
@@ -285,7 +286,7 @@ class AppTest extends TestCase
 
     public function testGroupSegmentWithEmptyRoute()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('/foo', function () use ($app) {
             $app->get('', function ($req, $res) {
                 // Do something
@@ -298,7 +299,7 @@ class AppTest extends TestCase
 
     public function testTwoGroupSegmentsWithSingleSlashRoute()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('/foo', function () use ($app) {
             $app->group('/baz', function () use ($app) {
                 $app->get('/', function ($req, $res) {
@@ -313,7 +314,7 @@ class AppTest extends TestCase
 
     public function testTwoGroupSegmentsWithAnEmptyRoute()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('/foo', function () use ($app) {
             $app->group('/baz', function () use ($app) {
                 $app->get('', function ($req, $res) {
@@ -328,7 +329,7 @@ class AppTest extends TestCase
 
     public function testTwoGroupSegmentsWithSegmentRoute()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('/foo', function () use ($app) {
             $app->group('/baz', function () use ($app) {
                 $app->get('/bar', function ($req, $res) {
@@ -343,7 +344,7 @@ class AppTest extends TestCase
 
     public function testTwoGroupSegmentsWithSegmentRouteThatHasATrailingSlash()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('/foo', function () use ($app) {
             $app->group('/baz', function () use ($app) {
                 $app->get('/bar/', function ($req, $res) {
@@ -358,7 +359,7 @@ class AppTest extends TestCase
 
     public function testGroupSegmentWithSingleSlashNestedGroupAndSegmentRoute()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('/foo', function () use ($app) {
             $app->group('/', function () use ($app) {
                 $app->get('/bar', function ($req, $res) {
@@ -373,7 +374,7 @@ class AppTest extends TestCase
 
     public function testGroupSegmentWithSingleSlashGroupAndSegmentRouteWithoutLeadingSlash()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('/foo', function () use ($app) {
             $app->group('/', function () use ($app) {
                 $app->get('bar', function ($req, $res) {
@@ -388,7 +389,7 @@ class AppTest extends TestCase
 
     public function testGroupSegmentWithEmptyNestedGroupAndSegmentRoute()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('/foo', function () use ($app) {
             $app->group('', function () use ($app) {
                 $app->get('/bar', function ($req, $res) {
@@ -403,7 +404,7 @@ class AppTest extends TestCase
 
     public function testGroupSegmentWithEmptyNestedGroupAndSegmentRouteWithoutLeadingSlash()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('/foo', function () use ($app) {
             $app->group('', function () use ($app) {
                 $app->get('bar', function ($req, $res) {
@@ -418,7 +419,7 @@ class AppTest extends TestCase
 
     public function testGroupSingleSlashWithSegmentRouteThatDoesNotEndInASlash()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('/', function () use ($app) {
             $app->get('/bar', function ($req, $res) {
                 // Do something
@@ -431,7 +432,7 @@ class AppTest extends TestCase
 
     public function testGroupSingleSlashWithSegmentRouteThatEndsInASlash()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('/', function () use ($app) {
             $app->get('/bar/', function ($req, $res) {
                 // Do something
@@ -444,7 +445,7 @@ class AppTest extends TestCase
 
     public function testGroupSingleSlashWithSingleSlashRoute()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('/', function () use ($app) {
             $app->get('/', function ($req, $res) {
                 // Do something
@@ -457,7 +458,7 @@ class AppTest extends TestCase
 
     public function testGroupSingleSlashWithEmptyRoute()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('/', function () use ($app) {
             $app->get('', function ($req, $res) {
                 // Do something
@@ -470,7 +471,7 @@ class AppTest extends TestCase
 
     public function testGroupSingleSlashWithNestedGroupSegmentWithSingleSlashRoute()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('/', function () use ($app) {
             $app->group('/baz', function () use ($app) {
                 $app->get('/', function ($req, $res) {
@@ -485,7 +486,7 @@ class AppTest extends TestCase
 
     public function testGroupSingleSlashWithNestedGroupSegmentWithAnEmptyRoute()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('/', function () use ($app) {
             $app->group('/baz', function () use ($app) {
                 $app->get('', function ($req, $res) {
@@ -500,7 +501,7 @@ class AppTest extends TestCase
 
     public function testGroupSingleSlashWithNestedGroupSegmentWithSegmentRoute()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('/', function () use ($app) {
             $app->group('/baz', function () use ($app) {
                 $app->get('/bar', function ($req, $res) {
@@ -515,7 +516,7 @@ class AppTest extends TestCase
 
     public function testGroupSingleSlashWithNestedGroupSegmentWithSegmentRouteThatHasATrailingSlash()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('/', function () use ($app) {
             $app->group('/baz', function () use ($app) {
                 $app->get('/bar/', function ($req, $res) {
@@ -530,7 +531,7 @@ class AppTest extends TestCase
 
     public function testGroupSingleSlashWithSingleSlashNestedGroupAndSegmentRoute()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('/', function () use ($app) {
             $app->group('/', function () use ($app) {
                 $app->get('/bar', function ($req, $res) {
@@ -545,7 +546,7 @@ class AppTest extends TestCase
 
     public function testGroupSingleSlashWithSingleSlashGroupAndSegmentRouteWithoutLeadingSlash()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('/', function () use ($app) {
             $app->group('/', function () use ($app) {
                 $app->get('bar', function ($req, $res) {
@@ -560,7 +561,7 @@ class AppTest extends TestCase
 
     public function testGroupSingleSlashWithEmptyNestedGroupAndSegmentRoute()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('/', function () use ($app) {
             $app->group('', function () use ($app) {
                 $app->get('/bar', function ($req, $res) {
@@ -575,7 +576,7 @@ class AppTest extends TestCase
 
     public function testGroupSingleSlashWithEmptyNestedGroupAndSegmentRouteWithoutLeadingSlash()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('/', function () use ($app) {
             $app->group('', function () use ($app) {
                 $app->get('bar', function ($req, $res) {
@@ -590,7 +591,7 @@ class AppTest extends TestCase
 
     public function testEmptyGroupWithSegmentRouteThatDoesNotEndInASlash()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('', function () use ($app) {
             $app->get('/bar', function ($req, $res) {
                 // Do something
@@ -603,7 +604,7 @@ class AppTest extends TestCase
 
     public function testEmptyGroupWithSegmentRouteThatEndsInASlash()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('', function () use ($app) {
             $app->get('/bar/', function ($req, $res) {
                 // Do something
@@ -616,7 +617,7 @@ class AppTest extends TestCase
 
     public function testEmptyGroupWithSingleSlashRoute()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('', function () use ($app) {
             $app->get('/', function ($req, $res) {
                 // Do something
@@ -629,7 +630,7 @@ class AppTest extends TestCase
 
     public function testEmptyGroupWithEmptyRoute()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('', function () use ($app) {
             $app->get('', function ($req, $res) {
                 // Do something
@@ -642,7 +643,7 @@ class AppTest extends TestCase
 
     public function testEmptyGroupWithNestedGroupSegmentWithSingleSlashRoute()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('', function () use ($app) {
             $app->group('/baz', function () use ($app) {
                 $app->get('/', function ($req, $res) {
@@ -657,7 +658,7 @@ class AppTest extends TestCase
 
     public function testEmptyGroupWithNestedGroupSegmentWithAnEmptyRoute()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('', function () use ($app) {
             $app->group('/baz', function () use ($app) {
                 $app->get('', function ($req, $res) {
@@ -672,7 +673,7 @@ class AppTest extends TestCase
 
     public function testEmptyGroupWithNestedGroupSegmentWithSegmentRoute()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('', function () use ($app) {
             $app->group('/baz', function () use ($app) {
                 $app->get('/bar', function ($req, $res) {
@@ -687,7 +688,7 @@ class AppTest extends TestCase
 
     public function testEmptyGroupWithNestedGroupSegmentWithSegmentRouteThatHasATrailingSlash()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('', function () use ($app) {
             $app->group('/baz', function () use ($app) {
                 $app->get('/bar/', function ($req, $res) {
@@ -702,7 +703,7 @@ class AppTest extends TestCase
 
     public function testEmptyGroupWithSingleSlashNestedGroupAndSegmentRoute()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('', function () use ($app) {
             $app->group('/', function () use ($app) {
                 $app->get('/bar', function ($req, $res) {
@@ -717,7 +718,7 @@ class AppTest extends TestCase
 
     public function testEmptyGroupWithSingleSlashGroupAndSegmentRouteWithoutLeadingSlash()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('', function () use ($app) {
             $app->group('/', function () use ($app) {
                 $app->get('bar', function ($req, $res) {
@@ -732,7 +733,7 @@ class AppTest extends TestCase
 
     public function testEmptyGroupWithEmptyNestedGroupAndSegmentRoute()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('', function () use ($app) {
             $app->group('', function () use ($app) {
                 $app->get('/bar', function ($req, $res) {
@@ -747,7 +748,7 @@ class AppTest extends TestCase
 
     public function testEmptyGroupWithEmptyNestedGroupAndSegmentRouteWithoutLeadingSlash()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->group('', function () use ($app) {
             $app->group('', function () use ($app) {
                 $app->get('bar', function ($req, $res) {
@@ -766,7 +767,7 @@ class AppTest extends TestCase
 
     public function testBottomMiddlewareIsApp()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $mw = function ($req, $res, $next) {
             return $res;
         };
@@ -780,7 +781,7 @@ class AppTest extends TestCase
 
     public function testAddMiddleware()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $mw = function ($req, $res, $next) {
             return $res;
         };
@@ -801,7 +802,7 @@ class AppTest extends TestCase
             'REQUEST_METHOD' => 'GET',
         ]);
 
-        $app = new App($config);
+        $app = $this->appFactory($config);
 
         $c = $app->getContainer();
         $req = $c->get('request');
@@ -834,7 +835,7 @@ class AppTest extends TestCase
 
     public function testAddMiddlewareOnRouteGroup()
     {
-        // $this->markTestSkipped();
+        $this->markTestSkipped();
 
         $config = include(__DIR__ . '/config.php');
         $config['environment'] = Environment::mock([
@@ -874,10 +875,7 @@ class AppTest extends TestCase
 
     public function testAddMiddlewareOnTwoRouteGroup()
     {
-        $this->markTestSkipped();
-
-        $config = include(__DIR__ . '/config.php');
-        $app = new App($config);
+        $app = $this->appFactory();
 
         $app->group('/foo', function () use ($app) {
             $app->group('/baz', function () use ($app) {
@@ -978,7 +976,7 @@ class AppTest extends TestCase
 
     public function testInvokeReturnMethodNotAllowed()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->get('/foo', function ($req, $res) {
             $res->write('Hello');
 
@@ -1028,7 +1026,7 @@ class AppTest extends TestCase
             'REQUEST_METHOD' => 'GET',
         ]);
 
-        $app = new App($config);
+        $app = $this->appFactory($config);
         $c = $app->getContainer();
         $req = $c->get('request');
         $res = $c->get('response');
@@ -1055,7 +1053,7 @@ class AppTest extends TestCase
             'REQUEST_METHOD' => 'GET',
         ]);
 
-        $app = new App($config);
+        $app = $this->appFactory($config);
         $c = $app->getContainer();
         $request = $c->get('request');
         $response = $c->get('response');
@@ -1073,7 +1071,7 @@ class AppTest extends TestCase
 
     public function testInvokeWithMatchingRouteWithSetArguments()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $attributes = ['attribute1' => 'there', 'attribute2' => 'world!'];
         $app->get('/foo/bar', function ($request, $response, $attribute1, $attribute2) {
             return $response->write("Hello $attribute1 $attribute2");
@@ -1102,7 +1100,7 @@ class AppTest extends TestCase
 
     public function testInvokeWithMatchingRouteWithNamedParameter()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->get('/foo/{name}', function ($request, $response) {
             /**
              * @var Request $request
@@ -1149,7 +1147,7 @@ class AppTest extends TestCase
             return new RequestResponseArgs();
         };
 
-        $app = new App($config);
+        $app = $this->appFactory($config);
         $app->get('/foo/{name}', function ($req, $res, $name) {
             return $res->write("Hello {$name}");
         });
@@ -1173,7 +1171,7 @@ class AppTest extends TestCase
                 'REQUEST_URI' => '/foo/test!',
                 'REQUEST_METHOD' => 'GET']);
         };
-        $app = new App($config);
+        $app = $this->appFactory($config);
         $app->get('/foo/{name}', function ($request, $response, $extra, $name) {
             return $response->write("Hello $extra $name");
         })->setArguments(['extra' => 'there', 'name' => 'world!']);
@@ -1190,7 +1188,7 @@ class AppTest extends TestCase
 
     public function testInvokeWithoutMatchingRoute()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->get('/bar', function ($req, $res) {
             $res->write('Hello');
 
@@ -1227,7 +1225,7 @@ class AppTest extends TestCase
 
     public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArguments()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->get('/foo/{name}', function ($request, $response) {
             $route = $request->getAttribute('route');
             return $response->write($request->getAttribute('one') . $route->getArgument('name'));
@@ -1268,7 +1266,7 @@ class AppTest extends TestCase
             return new RequestResponseArgs();
         };
 
-        $app = new App($config);
+        $app = $this->appFactory($config);
         $app->get('/foo/{name}', function ($req, $res, $name) {
             return $res->write($req->getAttribute('one') . $name);
         });
@@ -1401,7 +1399,7 @@ class AppTest extends TestCase
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $response = new Response();
 
-        $app = new App();
+        $app = $this->appFactory();
         $app->get('/foo', function ($request, $response) {
             $response = $response->withStatus(204);
             return $response;
@@ -1485,7 +1483,7 @@ class AppTest extends TestCase
 
     public function testRespondIndeterminateLength()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $body_stream = fopen('php://temp', 'r+');
         $response = new Response();
         $body = $this->getMockBuilder("\Slender\Http\Body")
@@ -1502,7 +1500,7 @@ class AppTest extends TestCase
 
     public function testRespondKnownLength()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $body_stream = fopen('php://temp', 'r+');
         $response = new Response();
         $body = $this->getMockBuilder("\Slender\Http\Body")
@@ -1553,8 +1551,7 @@ class AppTest extends TestCase
 
     public function testExceptionErrorHandlerDoesNotDisplayErrorDetails()
     {
-        $config = include(__DIR__ . '/config.php');
-        $app = new App($config);
+        $app = $this->appFactory();
 
         $mw = function ($req, $res, $next) {
             throw new \Exception('middleware exception');
@@ -1577,8 +1574,7 @@ class AppTest extends TestCase
      */
     public function testExceptionPhpErrorHandlerDoesNotDisplayErrorDetails()
     {
-        $config = include(__DIR__ . '/config.php');
-        $app = new App($config);
+        $app = $this->appFactory();
 
         $mw = function ($req, $res, $next) {
             dumpFonction();
@@ -1737,7 +1733,7 @@ class AppTest extends TestCase
     {
         $config = include(__DIR__ . '/config.php');
         $config['settings.determineRouteBeforeAppMiddleware'] = true;
-        $app = new App($config);
+        $app = $this->appFactory($config);
 
         $getHandler = new class
         {
@@ -1760,7 +1756,7 @@ class AppTest extends TestCase
     {
         $config = include(__DIR__ . '/config.php');
         $config['settings.displayErrorDetails'] = true;
-        $app = new App($config);
+        $app = $this->appFactory($config);
 
         $mw = function ($req, $res, $next) {
             throw new \RuntimeException('middleware exception');
@@ -1786,7 +1782,7 @@ class AppTest extends TestCase
         $response = new Response();
         $response->getBody()->write('foo');
 
-        $response = $method->invoke(new App(), $response);
+        $response = $method->invoke($this->appFactory(), $response);
 
         $this->assertTrue($response->hasHeader('Content-Length'));
         $this->assertEquals('3', $response->getHeaderLine('Content-Length'));
@@ -1797,7 +1793,7 @@ class AppTest extends TestCase
         $method = new \ReflectionMethod('Slender\App', 'finalize');
         $method->setAccessible(true);
 
-        $response = $method->invoke(new App(), new Response(304));
+        $response = $method->invoke($this->appFactory(), new Response(304));
 
         $this->assertFalse($response->hasHeader('Content-Length'));
         $this->assertFalse($response->hasHeader('Content-Type'));
@@ -1812,7 +1808,7 @@ class AppTest extends TestCase
             };
         };
 
-        $app = new App($config);
+        $app = $this->appFactory($config);
 
         $result = $app->foo('bar');
         $this->assertSame('bar', $result);
@@ -1832,12 +1828,13 @@ class AppTest extends TestCase
      */
     public function testCallingFromContainerNotCallable()
     {
-        $settings = [
+        $config = include(__DIR__ . '/config.php');
+        $config += [
             'foo' => function ($c) {
                 return null;
             }
         ];
-        $app = new App($settings);
+        $app = $this->appFactory($config);
         $app->foo('bar');
     }
 
@@ -1846,7 +1843,7 @@ class AppTest extends TestCase
      */
     public function testCallingAnUnknownContainerCallableThrows()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->foo('bar');
     }
 
@@ -1855,7 +1852,7 @@ class AppTest extends TestCase
      */
     public function testCallingAnUncallableContainerKeyThrows()
     {
-        $app = new App();
+        $app = $this->appFactory();
         $app->foo('bar');
     }
 
@@ -1869,7 +1866,7 @@ class AppTest extends TestCase
 
         $config = include(__DIR__ . '/config.php');
         $config['settings.addContentLengthHeader'] = false;
-        $app = new app($config);
+        $app = $this->appFactory($config);
 
         $response = $method->invoke($app, $response);
 
@@ -1892,7 +1889,7 @@ class AppTest extends TestCase
 
         $config = include(__DIR__ . '/config.php');
         $config['settings']['addContentLengthHeader'] = true;
-        $app = new App($config);
+        $app = $this->appFactory($config);
         $response = $method->invoke($app, $response);
     }
 
@@ -1900,7 +1897,7 @@ class AppTest extends TestCase
     {
         $config = include(__DIR__ . '/config.php');
         $config['environment'] = Environment::mock(['REQUEST_URI' => '/', 'REQUEST_METHOD' => 'BADMTHD']);
-        $app = new App($config);
+        $app = $this->appFactory($config);
 
         $resOut = $app->run(true);
 
@@ -1913,7 +1910,7 @@ class AppTest extends TestCase
         $config = include(__DIR__ . '/config.php');
         $config['environment'] = Environment::mock(['REQUEST_URI' => '/', 'REQUEST_METHOD' => 'BADMTHD']);
 
-        $app = new App($config);
+        $app = $this->appFactory($config);
         $app->get('/', function () {
             // stubbed action to give us a route at /
         });
@@ -1924,12 +1921,14 @@ class AppTest extends TestCase
         $this->assertEquals(405, $resOut->getStatusCode());
     }
 
-    public function testUnsupportedMethodWithRoute2()
+    public function testInvalidMethodWithRoute()
     {
+        $this->expectException(InvalidMethodException::class);
+
         $config = include(__DIR__ . '/config.php');
         $config['environment'] = Environment::mock(['REQUEST_URI' => '/', 'REQUEST_METHOD' => 'B@DMTHD']);
 
-        $app = new App($config);
+        $app = $this->appFactory($config);
         $app->get('/', function () {
             // stubbed action to give us a route at /
         });
@@ -1942,8 +1941,7 @@ class AppTest extends TestCase
 
     public function testContainerSetToRoute()
     {
-        $config = include(__DIR__ . '/config.php');
-        $app = new App($config);
+        $app = $this->appFactory();
         $container = $app->getContainer();
 
         /** @var $router Router */
@@ -1973,7 +1971,7 @@ class AppTest extends TestCase
         $response = new Response();
         $response = $response->withStatus(204);
 
-        $result = $method->invoke(new App(), $response);
+        $result = $method->invoke($this->appFactory(), $response);
         $this->assertTrue($result);
     }
 
@@ -1987,7 +1985,7 @@ class AppTest extends TestCase
         $response->method('getStatusCode')
             ->willReturn(204);
 
-        $result = $method->invoke(new App(), $response);
+        $result = $method->invoke($this->appFactory(), $response);
         $this->assertTrue($result);
     }
 }

@@ -398,36 +398,6 @@ class RouterTest extends TestCase
     }
 
     /**
-     * Test that the router urlFor will proxy into a pathFor method, and trigger
-     * the user deprecated warning
-     */
-    public function testUrlForAliasesPathFor()
-    {
-
-        //create a temporary error handler, store the error str in this value
-        $errorString = null;
-
-        set_error_handler(function ($no, $str) use (&$errorString) {
-            $errorString = $str;
-        }, E_USER_DEPRECATED);
-
-        //create the parameters we expect
-        $name = 'foo';
-        $data = ['name' => 'josh'];
-        $queryParams = ['a' => 'b', 'c' => 'd'];
-
-        //create a router that mocks the pathFor with expected args
-        $router = $this->getMockBuilder('\Slender\Router')->setMethods(['pathFor'])->getMock();
-        $router->expects($this->once())->method('pathFor')->with($name, $data, $queryParams);
-        $router->urlFor($name, $data, $queryParams);
-
-        //check that our error was triggered
-        $this->assertEquals($errorString, 'urlFor() is deprecated. Use pathFor() instead.');
-
-        restore_error_handler();
-    }
-
-    /**
      * @expectedException \RuntimeException
      */
     public function testLookupRouteThrowsExceptionIfRouteNotFound()

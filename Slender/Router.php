@@ -20,8 +20,7 @@ use RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
-use FastRoute\RouteParser\Std as StdParser;
-use Slender\Interfaces\RouteGroupInterface;
+use FastRoute\RouteParser\Std;
 use Slender\Interfaces\RouterInterface;
 use Slender\Interfaces\RouteInterface;
 use function FastRoute\cachedDispatcher;
@@ -93,9 +92,9 @@ class Router implements RouterInterface
     /**
      * Create new router
      */
-    public function __construct(RouteParser $parser = null)
+    public function __construct()
     {
-        $this->routeParser = $parser ?: new StdParser;
+        $this->routeParser = new Std();
     }
 
     /**
@@ -342,17 +341,5 @@ class Router implements RouterInterface
         }
 
         return $url;
-    }
-
-    /**
-     * Build the path for a named route.
-     *
-     * This method is deprecated. Use pathFor() from now on.
-     * @deprecated
-     */
-    public function urlFor(string $name, array $data = [], array $queryParams = []): string
-    {
-        trigger_error('urlFor() is deprecated. Use pathFor() instead.', E_USER_DEPRECATED);
-        return $this->pathFor($name, $data, $queryParams);
     }
 }

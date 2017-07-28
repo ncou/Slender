@@ -31,6 +31,7 @@ use DI\Container;
 use DI\ContainerBuilder;
 use Exception;
 use Slender\Exception\InvalidMethodException;
+use Slender\Http\Response;
 use Throwable;
 use Closure;
 use Psr\Http\Message\ServerRequestInterface;
@@ -84,6 +85,21 @@ class App
      */
     protected $router;
 
+    /**
+     * @var  Request
+     */
+    protected $request;
+
+    /**
+     * @var  Response
+     */
+    protected $response;
+
+    /**
+     * @var array
+     */
+    protected $settings;
+
     /********************************************************************************
      * Constructor
      *******************************************************************************/
@@ -102,11 +118,16 @@ class App
             $definitions = __DIR__ . '/config.php';
         }
 
+        $containerBuilder->useAutowiring(true);
         $containerBuilder->addDefinitions($definitions);
         $this->configureContainer($containerBuilder);
-        $this->container = $containerBuilder->build();
+        $container = $containerBuilder->build();
 
-        $this->router = $this->container->get('router');
+        $this->router = $container->get('router');
+        $this->request = $container->get('request');
+        $this->response = $container->get('response');
+        $this->settings = $container->get('settings');
+        $this->container = $container;
     }
 
     /**
@@ -200,7 +221,7 @@ class App
     /**
      * Add PUT route
      */
-    public function put(string $pattern, $callable)
+    public function put(string $pattern, $callable): RouteInterface
     {
         assert(Library::valid_num_args());
 
@@ -210,7 +231,7 @@ class App
     /**
      * Add PATCH route
      */
-    public function patch(string $pattern, $callable)
+    public function patch(string $pattern, $callable): RouteInterface
     {
         assert(Library::valid_num_args());
 
@@ -220,7 +241,7 @@ class App
     /**
      * Add DELETE route
      */
-    public function delete(string $pattern, $callable)
+    public function delete(string $pattern, $callable): RouteInterface
     {
         assert(Library::valid_num_args());
 
@@ -230,7 +251,7 @@ class App
     /**
      * Add OPTIONS route
      */
-    public function options(string $pattern, $callable)
+    public function options(string $pattern, $callable): RouteInterface
     {
         assert(Library::valid_num_args());
 
@@ -240,7 +261,7 @@ class App
     /**
      * Add route for any HTTP method
      */
-    public function any(string $pattern, $callable)
+    public function any(string $pattern, $callable): RouteInterface
     {
         assert(Library::valid_num_args());
 
@@ -266,7 +287,7 @@ class App
 
         /** @var Route $route */
         if (is_callable([$route, 'setOutputBuffering'])) {
-            $route->setOutputBuffering((string)$this->container->get('settings')['outputBuffering']);
+            $route->setOutputBuffering((string)$this->settings['outputBuffering']);
         }
 
         return $route;
@@ -304,11 +325,10 @@ class App
     {
         assert(Library::valid_num_args());
 
-        $response = $this->container->get('response');
-
+        $response = $this->response;
 
         try {
-            $response = $this->process($this->container->get('request'), $response);
+            $response = $this->process($this->request, $response);
         } catch (InvalidMethodException $e) {
             $response = $this->processInvalidMethod($e->getRequest(), $response);
         } catch (Exception $e) {
@@ -369,7 +389,7 @@ class App
         $router->setBasePath($request->getUri()->getBasePath());
 
         // Dispatch the Router first if the setting for this is on
-        if ($this->container->get('settings')['determineRouteBeforeAppMiddleware'] === true) {
+        if ($this->settings['determineRouteBeforeAppMiddleware'] === true) {
             // Dispatch router (note: you won't be able to alter routes after this)
             $request = $this->dispatchRouterAndPrepareRoute($request, $router);
         }
@@ -419,7 +439,7 @@ class App
             if ($body->isSeekable()) {
                 $body->rewind();
             }
-            $settings       = $this->container->get('settings');
+            $settings       = $this->settings;
             $chunkSize      = (int)$settings['responseChunkSize'];
 
             $contentLength  = $response->getHeaderLine('Content-Length');
@@ -534,7 +554,7 @@ class App
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
 
         if (!$response) {
-            $response = $this->container->get('response');
+            $response = $this->response;
         }
 
         return $this($request, $response);
@@ -584,8 +604,8 @@ class App
         }
 
         // Add Content-Length header if `addContentLengthHeader` setting is set
-        if (isset($this->container->get('settings')['addContentLengthHeader']) &&
-            $this->container->get('settings')['addContentLengthHeader'] == true) {
+        if (isset($this->settings['addContentLengthHeader']) &&
+            $this->settings['addContentLengthHeader'] == true) {
             if (ob_get_length() > 0) {
                 throw new \RuntimeException("Unexpected data in output buffer. " .
                     "Maybe you have characters before an opening <?php tag?");
