@@ -22,7 +22,7 @@ use Slender\Interfaces\CallableResolverInterface;
  *
  * This is an internal class that enables resolution of 'class:method' strings
  * into a closure. This class is an implementation detail and is used only inside
- * of the Slim application.
+ * of the Slender application.
  *
  * @property ContainerInterface $container
  */

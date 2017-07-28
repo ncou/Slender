@@ -16,7 +16,7 @@ namespace Slender\Handlers;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
- * Abstract Slim application handler
+ * Abstract Slender application handler
  */
 abstract class AbstractHandler
 {

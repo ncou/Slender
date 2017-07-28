@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Slender\Handlers;
 
 /**
- * Abstract Slim application error handler
+ * Abstract Slender application error handler
  */
 abstract class AbstractError extends AbstractHandler
 {
@@ -40,7 +40,7 @@ abstract class AbstractError extends AbstractHandler
             return;
         }
 
-        $message = 'Slim Application Error:' . PHP_EOL;
+        $message = 'Slender application Error:' . PHP_EOL;
         $message .= $this->renderThrowableAsText($throwable);
         while ($throwable = $throwable->getPrevious()) {
             $message .= PHP_EOL . 'Previous error:' . PHP_EOL;

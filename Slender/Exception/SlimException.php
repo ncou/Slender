@@ -20,7 +20,7 @@ use Psr\Http\Message\ResponseInterface;
 /**
  * Stop Exception
  *
- * This Exception is thrown when the Slim application needs to abort
+ * This Exception is thrown when the Slender application needs to abort
  * processing and return control flow to the outer PHP script.
  */
 class SlimException extends Exception

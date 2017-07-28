@@ -19,7 +19,7 @@ use Slender\Http\Body;
 use UnexpectedValueException;
 
 /**
- * Default Slim application not allowed handler
+ * Default Slender application not allowed handler
  *
  * It outputs a simple message in either JSON, XML or HTML based on the
  * Accept header.

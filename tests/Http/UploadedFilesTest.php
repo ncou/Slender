@@ -86,8 +86,8 @@ class UploadedFilesTest extends TestCase
      */
     public function testCreateFromEnvironmentFromUserData(array $input)
     {
-        //If slim.files provided - it will return what was provided
-        $userData['slim.files'] = $input;
+        //If slender.files provided - it will return what was provided
+        $userData['slender.files'] = $input;
 
         $uploadedFile = UploadedFile::createFromEnvironment(Environment::mock($userData));
         $this->assertEquals($input, $uploadedFile);
