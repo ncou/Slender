@@ -20,8 +20,7 @@ use RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
-use FastRoute\RouteParser\Std as StdParser;
-use Slender\Interfaces\RouteGroupInterface;
+use FastRoute\RouteParser\Std;
 use Slender\Interfaces\RouterInterface;
 use Slender\Interfaces\RouteInterface;
 use function FastRoute\cachedDispatcher;
@@ -30,7 +29,7 @@ use function FastRoute\simpleDispatcher;
 /**
  * Router
  *
- * This class organizes Slim application route objects. It is responsible
+ * This class organizes Slender application route objects. It is responsible
  * for registering route objects, assigning names to route objects,
  * finding routes that match the current HTTP request, and creating
  * URLs for a named route.
@@ -93,9 +92,9 @@ class Router implements RouterInterface
     /**
      * Create new router
      */
-    public function __construct(RouteParser $parser = null)
+    public function __construct()
     {
-        $this->routeParser = $parser ?: new StdParser;
+        $this->routeParser = new Std();
     }
 
     /**
@@ -130,7 +129,7 @@ class Router implements RouterInterface
     /**
      * Add route
      */
-    public function map(array $methods, string $pattern, $handler): RouteInterface
+    public function map(array $methods, string $pattern, $handler): Route
     {
         if (!(is_string($handler) || is_callable($handler))) {
             throw new InvalidArgumentException();
@@ -145,11 +144,8 @@ class Router implements RouterInterface
 
         /**
          * Add route
-         *
-         * @var Route $route
          */
-        // $route = $this->createRoute($methods, $pattern, $handler);
-        $route = new Route($methods, $pattern, $handler);
+        $route = new Route($methods, $pattern, $handler, $this->routeGroups, $this->routeCounter);
         $this->routes[$route->getIdentifier()] = $route;
         $this->routeCounter++;
 
@@ -253,7 +249,7 @@ class Router implements RouterInterface
     /**
      * Add a route group to the array
      */
-    public function pushGroup(string $pattern, $callable): RouteGroupInterface
+    public function pushGroup(string $pattern, $callable): RouteGroup
     {
         $group = new RouteGroup($pattern, $callable);
         array_push($this->routeGroups, $group);
@@ -345,17 +341,5 @@ class Router implements RouterInterface
         }
 
         return $url;
-    }
-
-    /**
-     * Build the path for a named route.
-     *
-     * This method is deprecated. Use pathFor() from now on.
-     * @deprecated
-     */
-    public function urlFor(string $name, array $data = [], array $queryParams = []): string
-    {
-        trigger_error('urlFor() is deprecated. Use pathFor() instead.', E_USER_DEPRECATED);
-        return $this->pathFor($name, $data, $queryParams);
     }
 }

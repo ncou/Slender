@@ -19,7 +19,7 @@ use Slender\Http\Body;
 use UnexpectedValueException;
 
 /**
- * Default Slim application error handler for PHP 7+ Throwables
+ * Default Slender application error handler for PHP 7+ Throwables
  *
  * It outputs the error message and diagnostic information in either JSON, XML,
  * or HTML based on the Accept header.
@@ -69,7 +69,7 @@ class PhpError extends AbstractError
      */
     protected function renderHtmlErrorMessage(\Throwable $error): string
     {
-        $title = 'Slim Application Error';
+        $title = 'Slender application Error';
 
         if ($this->displayErrorDetails) {
             $html = '<p>The application could not run because of the following error:</p>';
@@ -134,7 +134,7 @@ class PhpError extends AbstractError
     protected function renderJsonErrorMessage(\Throwable $error): string
     {
         $json = [
-            'message' => 'Slim Application Error',
+            'message' => 'Slender application Error',
         ];
 
         if ($this->displayErrorDetails) {
@@ -160,7 +160,7 @@ class PhpError extends AbstractError
      */
     protected function renderXmlErrorMessage(\Throwable $error): string
     {
-        $xml = "<error>\n  <message>Slim Application Error</message>\n";
+        $xml = "<error>\n  <message>Slender application Error</message>\n";
         if ($this->displayErrorDetails) {
             do {
                 $xml .= "  <error>\n";

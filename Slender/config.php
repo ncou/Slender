@@ -32,6 +32,8 @@ use Slender\{
     Http\Request,
     Http\Response
 };
+
+use FastRoute\RouteParser\Std;
 // @codingStandardsIgnoreEnd
 
 return [
@@ -58,7 +60,6 @@ return [
     // Default services
     'router' => object(Slender\Router::class)
         ->method('setCacheFile', get('settings.routerCacheFile')),
-    Slender\Router::class => get('router'),
     'errorHandler' => object(Slender\Handlers\Error::class)
         ->constructor(get('settings.displayErrorDetails')),
     'phpErrorHandler' => object(Slender\Handlers\PhpError::class)

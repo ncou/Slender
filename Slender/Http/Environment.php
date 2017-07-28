@@ -19,7 +19,7 @@ use Slender\Interfaces\Http\EnvironmentInterface;
 /**
  * Environment
  *
- * This class decouples the Slim application from the global PHP environment.
+ * This class decouples the Slender application from the global PHP environment.
  * This is particularly useful for unit testing, but it also lets us create
  * custom sub-requests.
  */

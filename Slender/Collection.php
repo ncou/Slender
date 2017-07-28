@@ -20,7 +20,7 @@ use Slender\Interfaces\CollectionInterface;
  * Collection
  *
  * This class provides a common interface used by many other
- * classes in a Slim application that manage "collections"
+ * classes in a Slender application that manage "collections"
  * of data that must be inspected and/or manipulated
  */
 class Collection implements CollectionInterface
