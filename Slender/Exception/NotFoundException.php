@@ -13,7 +13,7 @@ declare(strict_types=1);
  */
 namespace Slender\Exception;
 
-class NotFoundException extends SlimException
+class NotFoundException extends SlenderThrowable
 {
 
 }

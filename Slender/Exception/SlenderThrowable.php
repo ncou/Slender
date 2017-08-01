@@ -23,7 +23,7 @@ use Psr\Http\Message\ResponseInterface;
  * This Exception is thrown when the Slender application needs to abort
  * processing and return control flow to the outer PHP script.
  */
-class SlimException extends Exception
+class SlenderThrowable extends Exception implements \Throwable
 {
     /**
      * A request object

@@ -14,6 +14,9 @@ declare(strict_types=1);
 namespace Slender;
 
 use RuntimeException;
+use Slender\Exception\MethodNotAllowedException;
+use Slender\Exception\NotFoundException;
+use Slender\Handlers\Error;
 use SplStack;
 use SplDoublyLinkedList;
 use Psr\Http\Message\ServerRequestInterface;
