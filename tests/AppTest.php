@@ -14,12 +14,14 @@ declare(strict_types=1);
 namespace Slender\Tests;
 
 use DI\Container;
+use phpDocumentor\Reflection\DocBlock\Tags\Method;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slender\App;
 use Slender\Exception\InvalidMethodException;
 use Slender\Exception\MethodNotAllowedException;
 use Slender\Exception\NotFoundException;
+use Slender\Handlers\NotAllowed;
 use Slender\Handlers\Strategies\RequestResponseArgs;
 use Slender\Http\Body;
 use Slender\Http\Environment;
@@ -1002,14 +1004,48 @@ class AppTest extends TestCase
             '<p>Method not allowed. Must be one of: <strong>GET</strong></p>',
             (string)$resOut->getBody()
         );
+    }
 
-        // TODO: Move this to a separate test
-        /*
-        // now test that exception is raised if the handler isn't registered
-        unset($app->getContainer()['notAllowedHandler']);
-        $this->setExpectedException('Slender\Exception\MethodNotAllowedException');
-        $app($req, $res);
-        */
+    public function testInvokeReturnMethodNotAllowedWithoutHandler()
+    {
+        $this->expectException(MethodNotAllowedException::class);
+
+        $config = include(__DIR__ . '/config.php');
+        unset($config['notAllowedHandler']);
+        $app = $this->appFactory($config);
+
+        $app->post('/foo', function ($request, $response) {
+            $response->write('Hello');
+
+            return $response;
+        });
+
+        $request = $app->getContainer()->get('request');
+        $response = $app->getContainer()->get('response');
+
+        // Invoke app
+        $app($request, $response);
+    }
+
+    public function testInvokeReturnMethodNotFoundWithoutHandler()
+    {
+        $this->expectException(NotFoundException::class);
+
+        $config = include(__DIR__ . '/config.php');
+        unset($config['notFoundHandler']);
+        $app = $this->appFactory($config);
+
+        $app->get('/foog', function ($request, $response) {
+            $response->write('Hello');
+
+            return $response;
+        });
+
+        $request = $app->getContainer()->get('request');
+        $response = $app->getContainer()->get('response');
+
+        // Invoke app
+        $app($request, $response);
     }
 
     public function testInvokeWithMatchingRoute()
