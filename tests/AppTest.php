@@ -16,12 +16,10 @@ namespace Slender\Tests;
 use DI\Container;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Slender\App;
 use Slender\Exception\InvalidMethodException;
 use Slender\Exception\MethodNotAllowedException;
 use Slender\Exception\NotFoundException;
-use Slender\Exception\SlimException;
 use Slender\Handlers\Strategies\RequestResponseArgs;
 use Slender\Http\Body;
 use Slender\Http\Environment;
@@ -801,7 +799,6 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/',
             'REQUEST_METHOD' => 'GET',
         ]);
-
         $app = $this->appFactory($config);
 
         $c = $app->getContainer();
@@ -835,12 +832,10 @@ class AppTest extends TestCase
 
     public function testAddMiddlewareOnRouteGroup()
     {
-        $this->markTestSkipped();
-
         $config = include(__DIR__ . '/config.php');
         $config['environment'] = Environment::mock([
             'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
+            'REQUEST_URI' => '/foo/',
             'REQUEST_METHOD' => 'GET',
         ]);
         $app = $this->appFactory($config);
@@ -1619,23 +1614,6 @@ class AppTest extends TestCase
             throw new \Exception();
         });
         $response = $app->run(true);
-    }
-
-    public function testRunSlimException()
-    {
-        $app = $this->appFactory();
-        $app->get('/foo', function ($req, $res, $args) {
-            return $res;
-        });
-        $app->add(function ($req, $res, $args) {
-            $res->write("Failed");
-            throw new SlimException($req, $res);
-        });
-        $res = $app->run(true);
-
-        $res->getBody()->rewind();
-        $this->assertEquals(200, $res->getStatusCode());
-        $this->assertEquals("Failed", $res->getBody()->getContents());
     }
 
     /**

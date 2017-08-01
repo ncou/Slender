@@ -30,7 +30,6 @@ namespace Slender;
 use DI\Container;
 use DI\ContainerBuilder;
 use Exception;
-use Slender\Exception\InvalidMethodException;
 use Slender\Http\Response;
 use Throwable;
 use Closure;
@@ -38,7 +37,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
 use FastRoute\Dispatcher;
-use Slender\Exception\SlimException;
 use Slender\Exception\MethodNotAllowedException;
 use Slender\Exception\NotFoundException;
 use Slender\Http\Uri;
@@ -164,18 +162,6 @@ class App
         assert(Library::valid_num_args());
 
         return $this->addMiddleware(new DeferredCallable($callable, $this->container));
-    }
-
-    /**
-     * AddClass middleware
-     *
-     * This method prepends new middleware to the app's middleware stack.
-     */
-    public function addClass(string $class): self
-    {
-        assert(Library::valid_num_args());
-
-        return $this->addMiddleware(new DeferredCallable($class, $this->container));
     }
 
     /**
@@ -325,15 +311,11 @@ class App
     {
         assert(Library::valid_num_args());
 
-        $response = $this->response;
+        // Error and Exception handling is now a part of middleware (not possible with pre PHP 7).
+        $this->add([$this, 'handleThrowable']);
 
-        try {
-            $response = $this->process($this->request, $response);
-        } catch (InvalidMethodException $e) {
-            $response = $this->processInvalidMethod($e->getRequest(), $response);
-        } catch (Exception $e) {
-            throw $e;
-        }
+        // Process the request
+        $response = $this->process($this->request, $this->response);
 
         if (!$silent) {
             $this->respond($response);
@@ -343,32 +325,21 @@ class App
     }
 
     /**
-     * Pull route info for a request with a bad method to decide whether to
-     * return a not-found error (default) or a bad-method error, then run
-     * the handler for that error, returning the resulting response.
-     *
-     * Used for cases where an incoming request has an unrecognized method,
-     * rather than throwing an exception and not catching it all the way up.
+     * This method is added as a part of the middleware of Slender for better control over error and exception handling
+     * Since this is Last In First Executed (LIFE) it is executed first wrapping all processing in a try...catch
      */
-    protected function processInvalidMethod(
+    public function handleThrowable(
         ServerRequestInterface $request,
-        ResponseInterface $response
+        ResponseInterface $response,
+        callable $next
     ): ResponseInterface {
         assert(Library::valid_num_args());
 
-        $router = $this->router;
-        $request = $this->dispatchRouterAndPrepareRoute($request, $router);
-        $routeInfo = $request->getAttribute('routeInfo', [RouterInterface::DISPATCH_STATUS => Dispatcher::NOT_FOUND]);
-
-        if ($routeInfo[RouterInterface::DISPATCH_STATUS] === Dispatcher::METHOD_NOT_ALLOWED) {
-            return $this->handleException(
-                new MethodNotAllowedException($request, $response, $routeInfo[RouterInterface::ALLOWED_METHODS]),
-                $request,
-                $response
-            );
+        try {
+            return $next($request, $response);
+        } catch (\Throwable $throwable) {
+            return $this->processException($throwable, $request, $response);
         }
-
-        return $this->handleException(new NotFoundException($request, $response), $request, $response);
     }
 
     /**
@@ -394,18 +365,40 @@ class App
             $request = $this->dispatchRouterAndPrepareRoute($request, $router);
         }
 
-        // Traverse middleware stack
-        try {
-            $response = $this->callMiddlewareStack($request, $response);
-        } catch (Exception $e) {
-            $response = $this->handleException($e, $request, $response);
-        } catch (Throwable $e) {
-            $response = $this->handlePhpError($e, $request, $response);
-        }
-
+        $response = $this->callMiddlewareStack($request, $response);
         $response = $this->finalize($response);
-
         return $response;
+    }
+
+    protected function processException(\Throwable $e, ServerRequestInterface $request, ResponseInterface $response)
+    {
+        assert(Library::valid_num_args());
+
+        switch ($e) {
+            case ($e instanceof MethodNotAllowedException):
+                $handler = 'notAllowedHandler';
+                if ($this->container->has($handler)) {
+                    $callable = $this->container->get($handler);
+                    return $callable($e->getRequest(), $e->getResponse(), $e->getAllowedMethods());
+                }
+                throw $e;
+
+            case ($e instanceof NotFoundException):
+                $handler = 'notFoundHandler';
+                if ($this->container->has($handler)) {
+                    $callable = $this->container->get($handler);
+                    return $callable($e->getRequest(), $e->getResponse(), $e);
+                }
+                throw $e;
+
+            default:
+                $handler = 'errorHandler';
+                if ($this->container->has($handler)) {
+                    $callable = $this->container->get($handler);
+                    return $callable($request, $response, $e);
+                }
+                throw $e;
+        }
     }
 
     /**
@@ -634,68 +627,5 @@ class App
         }
 
         return in_array($response->getStatusCode(), [204, 205, 304]);
-    }
-
-    /**
-     * Call relevant handler from the Container if needed. If it doesn't exist,
-     * then just re-throw.
-     */
-    protected function handleException(
-        Exception $e,
-        ServerRequestInterface $request,
-        ResponseInterface $response
-    ): ResponseInterface {
-        assert(Library::valid_num_args());
-
-        switch ($e) {
-            case ($e instanceof MethodNotAllowedException):
-                $handler = 'notAllowedHandler';
-                if ($this->container->has($handler)) {
-                    $callable = $this->container->get($handler);
-                    return $callable($e->getRequest(), $e->getResponse(), $e->getAllowedMethods());
-                }
-                throw $e;
-
-            case ($e instanceof NotFoundException):
-                $handler = 'notFoundHandler';
-                if ($this->container->has($handler)) {
-                    $callable = $this->container->get($handler);
-                    return $callable($e->getRequest(), $e->getResponse(), $e);
-                }
-                throw $e;
-
-            case ($e instanceof SlimException):
-                // This is a Stop exception and contains the response
-                return $e->getResponse();
-
-            default:
-                $handler = 'errorHandler';
-                if ($this->container->has($handler)) {
-                    $callable = $this->container->get($handler);
-                    return $callable($request, $response, $e);
-                }
-                throw $e;
-        }
-    }
-
-    /**
-     * Call relevant handler from the Container if needed. If it doesn't exist,
-     * then just re-throw.
-     */
-    protected function handlePhpError(
-        Throwable $e,
-        ServerRequestInterface $request,
-        ResponseInterface $response
-    ): ResponseInterface {
-        assert(Library::valid_num_args());
-
-        $handler = 'phpErrorHandler';
-        if ($this->container->has($handler)) {
-            $callable = $this->container->get($handler);
-            return $callable($request, $response, $e);
-        }
-
-        // No handlers found, so just throw the exception
-        throw $e;
     }
 }

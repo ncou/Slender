@@ -16,7 +16,7 @@ namespace Slender\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-class MethodNotAllowedException extends SlimException
+class MethodNotAllowedException extends SlenderThrowable
 {
     /**
      * HTTP methods allowed

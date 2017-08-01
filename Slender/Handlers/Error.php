@@ -32,7 +32,7 @@ class Error extends AbstractError
     public function __invoke(
         ServerRequestInterface $request,
         ResponseInterface $response,
-        \Exception $exception
+        \Throwable $exception
     ): ResponseInterface {
     
         $contentType = $this->determineContentType($request);
@@ -68,14 +68,14 @@ class Error extends AbstractError
     /**
      * Render HTML error page
      */
-    protected function renderHtmlErrorMessage(\Exception $exception): string
+    protected function renderHtmlErrorMessage(\Throwable $exception): string
     {
         $title = 'Slender application Error';
 
         if ($this->displayErrorDetails) {
             $html = '<p>The application could not run because of the following error:</p>';
             $html .= '<h2>Details</h2>';
-            $html .= $this->renderHtmlException($exception);
+            $html .= $this->renderHtmlExceptionOrError($exception);
 
             while ($exception = $exception->getPrevious()) {
                 $html .= '<h2>Previous exception</h2>';
@@ -99,25 +99,10 @@ class Error extends AbstractError
     }
 
     /**
-     * Render exception as HTML.
-     *
-     * Provided for backwards compatibility; use renderHtmlExceptionOrError().
-     * @deprecated
-     */
-    protected function renderHtmlException(\Exception $exception): string
-    {
-        return $this->renderHtmlExceptionOrError($exception);
-    }
-
-    /**
      * Render exception or error as HTML.
      */
     protected function renderHtmlExceptionOrError(\Throwable $exception): string
     {
-        if (!$exception instanceof \Exception && !$exception instanceof \Error) {
-            throw new \RuntimeException("Unexpected type. Expected Exception or Error.");
-        }
-
         $html = sprintf('<div><strong>Type:</strong> %s</div>', get_class($exception));
 
         if (($code = $exception->getCode())) {
@@ -147,7 +132,7 @@ class Error extends AbstractError
     /**
      * Render JSON error
      */
-    protected function renderJsonErrorMessage(\Exception $exception): string
+    protected function renderJsonErrorMessage(\Throwable $exception): string
     {
         $error = [
             'message' => 'Slender application Error',
@@ -174,7 +159,7 @@ class Error extends AbstractError
     /**
      * Render XML error
      */
-    protected function renderXmlErrorMessage(\Exception $exception): string
+    protected function renderXmlErrorMessage(\Throwable $exception): string
     {
         $xml = "<error>\n  <message>Slender application Error</message>\n";
         if ($this->displayErrorDetails) {
