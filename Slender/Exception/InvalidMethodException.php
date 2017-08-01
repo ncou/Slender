@@ -24,9 +24,4 @@ class InvalidMethodException extends \InvalidArgumentException
         $this->request = $request;
         parent::__construct(sprintf('Unsupported HTTP method "%s" provided', $method));
     }
-
-    public function getRequest(): ServerRequestInterface
-    {
-        return $this->request;
-    }
 }
