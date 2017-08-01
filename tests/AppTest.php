@@ -804,30 +804,30 @@ class AppTest extends TestCase
         $app = $this->appFactory($config);
 
         $c = $app->getContainer();
-        $req = $c->get('request');
-        $res = $c->get('response');
+        $request = $c->get('request');
+        $response = $c->get('response');
 
-        $app->get('/', function () use ($req, $res) {
-            return $res->write('Center');
-        })->add(function ($req, $res, $next) {
-            $res->write('In1');
-            $res = $next($req, $res);
-            $res->write('Out1');
+        $app->get('/', function () use ($request, $response) {
+            return $response->write('Center');
+        })->add(function ($request, $response, $next) {
+            $response->write('In1');
+            $response = $next($request, $response);
+            $response->write('Out1');
 
-            return $res;
-        })->add(function ($req, $res, $next) {
-            $res->write('In2');
-            $res = $next($req, $res);
-            $res->write('Out2');
+            return $response;
+        })->add(function ($request, $response, $next) {
+            $response->write('In2');
+            $response = $next($request, $response);
+            $response->write('Out2');
 
-            return $res;
+            return $response;
         });
 
 
         // Invoke app
-        $app($req, $res);
+        $app($request, $response);
 
-        $body = (string)$res->getBody();
+        $body = (string)$response->getBody();
         $this->assertEquals('In2In1CenterOut1Out2', $body);
     }
 
@@ -1179,18 +1179,18 @@ class AppTest extends TestCase
         };
 
         $app = $this->appFactory($config);
-        $app->get('/foo/{name}', function ($req, $res, $name) {
-            return $res->write("Hello {$name}");
+        $app->get('/foo/{name}', function ($request, $response, $name) {
+            return $response->write("Hello $name");
         });
 
         // Invoke app
         $c = $app->getContainer();
-        $req = $c->get('request');
-        $res = $c->get('response');
-        $resOut = $app($req, $res);
+        $request = $c->get('request');
+        $response = $c->get('response');
+        $resOut = $app($request, $response);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals('Hello test!', (string)$res->getBody());
+        $this->assertEquals('Hello test!', (string)$response->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithNamedParameterOverwritesSetArgument()
@@ -1298,8 +1298,8 @@ class AppTest extends TestCase
         };
 
         $app = $this->appFactory($config);
-        $app->get('/foo/{name}', function ($req, $res, $name) {
-            return $res->write($req->getAttribute('one') . $name);
+        $app->get('/foo/{name}', function ($request, $response, $name) {
+            return $response->write($request->getAttribute('one') . $name);
         });
 
         $c = $app->getContainer();

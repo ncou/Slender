@@ -41,6 +41,6 @@ class DeferredCallable
             $callable = $callable->bindTo($this->container);
         }
         $args = func_get_args();
-        return call_user_func_array($callable, $args);
+        return $callable(...$args);
     }
 }
