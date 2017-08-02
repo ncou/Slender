@@ -265,16 +265,10 @@ class App
             $callable = $callable->bindTo($this->container);
         }
 
-        /** @var Router $route */
+        /** @var RouteInterface $route */
         $route = $this->router->map($methods, $pattern, $callable);
-        if (is_callable([$route, 'setContainer'])) {
-            $route->setContainer($this->container);
-        }
-
-        /** @var Route $route */
-        if (is_callable([$route, 'setOutputBuffering'])) {
-            $route->setOutputBuffering((string)$this->settings['outputBuffering']);
-        }
+        $route->setContainer($this->container)->
+            setOutputBuffering($this->settings['outputBuffering']);
 
         return $route;
     }

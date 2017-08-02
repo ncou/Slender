@@ -39,6 +39,13 @@ interface RouteInterface
     public function getName(): ?string;
 
     /**
+     * Set output buffering mode
+     *
+     * One of: 'none', 'prepend' or 'append'
+     */
+    public function setOutputBuffering(string $mode);
+
+    /**
      * Get route pattern
      */
     public function getPattern(): string;

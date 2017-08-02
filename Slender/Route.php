@@ -198,12 +198,14 @@ class Route extends Routable implements RouteInterface
      *
      * One of: 'none', 'prepend' or 'append'
      */
-    public function setOutputBuffering(string $mode): void
+    public function setOutputBuffering(string $mode): self
     {
         if (!in_array($mode, ['none', 'prepend', 'append'], true)) {
             throw new InvalidArgumentException('Unknown output buffering mode');
         }
+
         $this->outputBuffering = $mode;
+        return $this;
     }
 
     /**
