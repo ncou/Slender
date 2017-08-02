@@ -21,6 +21,7 @@ use Slender\Http\Environment;
 use Slender\Http\Headers;
 use Slender\Http\Request;
 use Slender\Http\RequestBody;
+use Slender\Http\Stream;
 use Slender\Http\UploadedFile;
 use Slender\Http\Uri;
 use PHPUnit\Framework\TestCase;
@@ -994,6 +995,35 @@ class RequestTest extends TestCase
             return 10; // <-- Return invalid body value
         });
         $request->getParsedBody(); // <-- Triggers exception
+    }
+
+    public function testWithParsedBodyAsObject()
+    {
+        $body = new \stdClass();
+        $body->foo='bar';
+        $clone = $this->requestFactory()->withParsedBody($body);
+
+        $this->assertEquals($body, $clone->getParsedBody());
+    }
+
+    public function testWithParsedBodyGetParamFromObject()
+    {
+        $body = new \stdClass();
+        $body->foo='bar';
+        $request = $this->requestFactory()->withParsedBody($body);
+
+        $this->assertEquals('bar', $request->getParam('foo'));
+    }
+
+    public function testGetParameterFromBodyWithBodyObject()
+    {
+        $body = new \stdClass();
+        $body->foo='bar';
+        $request = $this->requestFactory()
+            ->withParsedBody($body)
+            ->withHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        $this->assertEquals('bar', $request->getParsedBodyParam('foo'));
     }
 
     public function testWithParsedBody()

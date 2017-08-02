@@ -328,19 +328,14 @@ class ResponseTest extends TestCase
         $this->assertEquals($response->getStatusCode(), 201);
     }
 
-    /**
-     * @expectedException \TypeError
-     */
     public function testWithInvalidJsonThrowsException()
     {
-        $data = ['foo' => 'bar'.chr(233)];
-        $this->assertEquals('bar'.chr(233), $data['foo']);
+        $this->expectException(\InvalidArgumentException::class);
+
+        $data = ['foo' => 'bar' . chr(233)];
+        $this->assertEquals('bar' . chr(233), $data['foo']);
 
         $response = new Response();
         $response->withJson($data, 200);
-
-        // Safety net: this assertion should not occur, since the TypeError
-        // must have been caught earlier by the test framework
-        $this->assertFalse(true);
     }
 }

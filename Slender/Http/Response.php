@@ -299,12 +299,7 @@ class Response extends Message implements ResponseInterface
     public function withJson($data, ?int $status = null, int $encodingOptions = 0): self
     {
         $response = $this->withBody(new Body(fopen('php://temp', 'r+')));
-        $response->body->write($json = json_encode($data, $encodingOptions));
-
-        // Ensure that the json encoding passed successfully
-        if ($json === false) {
-            throw new \RuntimeException(json_last_error_msg(), json_last_error());
-        }
+        $response->body->write(json_encode($data, $encodingOptions));
 
         $responseWithJson = $response->withHeader('Content-Type', 'application/json;charset=utf-8');
         if (isset($status)) {

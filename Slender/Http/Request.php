@@ -175,10 +175,7 @@ class Request extends Message implements ServerRequestInterface
             $this->originalMethod = $this->filterMethod($method);
         } catch (InvalidMethodException $e) {
             $this->originalMethod = $method;
-        } catch (\Throwable $t) {
-            throw $t;
         }
-
         $this->uri = $uri;
         $this->headers = $headers;
         $this->cookies = $cookies;

@@ -388,6 +388,10 @@ class Stream implements StreamInterface
      */
     public function write($string): int
     {
+        if (!is_string($string)) {
+            throw new InvalidArgumentException();
+        }
+
         if (!$this->isWritable() || ($written = fwrite($this->stream, $string)) === false) {
             throw new RuntimeException('Could not write to stream');
         }

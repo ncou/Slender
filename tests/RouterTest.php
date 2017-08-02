@@ -13,6 +13,8 @@ declare(strict_types=1);
  */
 namespace Slender\Tests;
 
+use DI\Container;
+use Psr\Container\ContainerInterface;
 use Slender\Router;
 use PHPUnit\Framework\TestCase;
 
@@ -55,6 +57,21 @@ class RouterTest extends TestCase
         $this->assertAttributeEquals('/prefix/hello/{first}/{last}', 'pattern', $route);
     }
 
+    public function testBadRouteGroup()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->router->pushGroup('/prefix', true);
+    }
+
+    public function testSetContainter()
+    {
+        /** @var ContainerInterface $c */
+        $c = $this->createMock(Container::class);
+
+        $this->router->setContainer($c);
+    }
+
     /**
      * @expectedException \TypeError
      */
@@ -64,6 +81,16 @@ class RouterTest extends TestCase
         $pattern = ['foo'];
         $callable = function ($request, $response, $args) {
         };
+
+        $this->router->map($methods, $pattern, $callable);
+    }
+
+    public function testMapWithInvalidCallable()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $methods = ['GET'];
+        $pattern = 'foo';
+        $callable = true;
 
         $this->router->map($methods, $pattern, $callable);
     }

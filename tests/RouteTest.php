@@ -80,6 +80,29 @@ class RouteTest extends TestCase
         $this->assertTrue(is_callable($callable));
     }
 
+    public function testSetCallable()
+    {
+        $route = $this->routeFactory();
+
+        $route->setCallable(TestCase::class);
+        $this->assertEquals($route->getCallable(), TestCase::class);
+    }
+
+    public function testBadSetCallable()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $route = $this->routeFactory();
+
+        $route->setCallable(true);
+    }
+
+    public function testBadCallableInConstructor()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $route = new Route(['GET'], '/foo', true);
+    }
+
     public function testArgumentSetting()
     {
         $route = $this->routeFactory();
