@@ -87,10 +87,12 @@ abstract class Routable
     }
 
     /**
-     * Set the route pattern
+     * Set the route pattern (used in testing)
      */
-    public function setPattern(string $newPattern): void
+    public function setPattern(string $newPattern): self
     {
         $this->pattern = $newPattern;
+
+        return $this;
     }
 }

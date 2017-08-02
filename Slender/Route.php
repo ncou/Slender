@@ -142,13 +142,15 @@ class Route extends Routable implements RouteInterface
      *
      * @param string|\Closure $callable
      */
-    public function setCallable($callable): void
+    public function setCallable($callable): self
     {
         if (!(is_string($callable) || is_callable($callable))) {
             throw new InvalidArgumentException();
         }
 
         $this->callable = $callable;
+
+        return $this;
     }
 
     /**

@@ -195,11 +195,13 @@ class Router implements RouterInterface
     }
 
     /**
-     * Only used for testing so we don't need to make the $dispatcher property public.
+     * Only used for testing.
      */
-    public function setDispatcher(Dispatcher $dispatcher): void
+    public function setDispatcher(Dispatcher $dispatcher): self
     {
         $this->dispatcher = $dispatcher;
+
+        return $this;
     }
 
     /**

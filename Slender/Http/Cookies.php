@@ -61,9 +61,11 @@ class Cookies implements CookiesInterface
     /**
      * Set default cookie properties
      */
-    public function setDefaults(array $settings): void
+    public function setDefaults(array $settings): self
     {
         $this->defaults = array_replace($this->defaults, $settings);
+
+        return $this;
     }
 
     /**
