@@ -15,6 +15,7 @@ namespace Slender\Http;
 
 use Closure;
 use InvalidArgumentException;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;
@@ -136,7 +137,7 @@ class Request extends Message implements ServerRequestInterface
      * Create new HTTP request with data extracted from the application
      * Environment object
      */
-    public static function createFromEnvironment(Environment $environment): self
+    public static function createFromEnvironment(Environment $environment): ServerRequestInterface
     {
         $method = $environment['REQUEST_METHOD'];
         $uri = Uri::createFromEnvironment($environment);
@@ -300,7 +301,7 @@ class Request extends Message implements ServerRequestInterface
      * immutability of the message, and MUST return an instance that has the
      * changed request method.
      */
-    public function withMethod($method): self
+    public function withMethod(?string $method): RequestInterface
     {
         $method = $this->filterMethod($method);
         $clone = clone $this;
@@ -468,7 +469,7 @@ class Request extends Message implements ServerRequestInterface
      * @return static
      * @throws InvalidArgumentException if the request target is invalid
      */
-    public function withRequestTarget($requestTarget): self
+    public function withRequestTarget($requestTarget): RequestInterface
     {
         if (preg_match('#\s#', $requestTarget)) {
             throw new InvalidArgumentException(
@@ -488,7 +489,7 @@ class Request extends Message implements ServerRequestInterface
      *
      * @link http://tools.ietf.org/html/rfc3986#section-4.3
      */
-    public function getUri(): Uri
+    public function getUri(): UriInterface
     {
         return $this->uri;
     }
@@ -523,7 +524,7 @@ class Request extends Message implements ServerRequestInterface
      * @param bool $preserveHost Preserve the original state of the Host header.
      * @return static
      */
-    public function withUri(UriInterface $uri, $preserveHost = false): self
+    public function withUri(UriInterface $uri, bool $preserveHost = false): RequestInterface
     {
         $clone = clone $this;
         $clone->uri = $uri;
@@ -662,7 +663,7 @@ class Request extends Message implements ServerRequestInterface
      * immutability of the message, and MUST return an instance that has the
      * updated cookie values.
      */
-    public function withCookieParams(array $cookies): self
+    public function withCookieParams(array $cookies): ServerRequestInterface
     {
         $clone = clone $this;
         $clone->cookies = $cookies;
@@ -721,7 +722,7 @@ class Request extends Message implements ServerRequestInterface
      *     $_GET.
      * @return static
      */
-    public function withQueryParams(array $query): self
+    public function withQueryParams(array $query): ServerRequestInterface
     {
         $clone = clone $this;
         $clone->queryParams = $query;
@@ -758,7 +759,7 @@ class Request extends Message implements ServerRequestInterface
      * @return static
      * @throws \InvalidArgumentException if an invalid structure is provided.
      */
-    public function withUploadedFiles(array $uploadedFiles): self
+    public function withUploadedFiles(array $uploadedFiles): ServerRequestInterface
     {
         $clone = clone $this;
         $clone->uploadedFiles = $uploadedFiles;
@@ -826,7 +827,7 @@ class Request extends Message implements ServerRequestInterface
      * @param mixed $default Default value to return if the attribute does not exist.
      * @return mixed
      */
-    public function getAttribute($name, $default = null)
+    public function getAttribute(string $name, $default = null)
     {
         return $this->attributes->get($name, $default);
     }
@@ -846,7 +847,7 @@ class Request extends Message implements ServerRequestInterface
      * @param mixed $value The value of the attribute.
      * @return static
      */
-    public function withAttribute($name, $value): self
+    public function withAttribute(string $name, $value): ServerRequestInterface
     {
         $clone = clone $this;
         $clone->attributes->set($name, $value);
@@ -888,7 +889,7 @@ class Request extends Message implements ServerRequestInterface
      * @param string $name The attribute name.
      * @return static
      */
-    public function withoutAttribute($name): self
+    public function withoutAttribute(string $name): ServerRequestInterface
     {
         $clone = clone $this;
         $clone->attributes->remove($name);
@@ -978,7 +979,7 @@ class Request extends Message implements ServerRequestInterface
      * @throws \InvalidArgumentException if an unsupported argument type is
      *     provided.
      */
-    public function withParsedBody($data): self
+    public function withParsedBody($data): ServerRequestInterface
     {
         if (!is_null($data) && !is_object($data) && !is_array($data)) {
             throw new InvalidArgumentException('Parsed body value must be an array, an object, or null');

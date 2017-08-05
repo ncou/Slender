@@ -268,7 +268,7 @@ class Uri implements UriInterface
      * @return self A new instance with the specified scheme.
      * @throws \InvalidArgumentException for invalid or unsupported schemes.
      */
-    public function withScheme($scheme): self
+    public function withScheme(string $scheme): UriInterface
     {
         $scheme = $this->filterScheme($scheme);
         $clone = clone $this;
@@ -365,7 +365,7 @@ class Uri implements UriInterface
      * @param null|string $password The password associated with $user.
      * @return self A new instance with the specified user information.
      */
-    public function withUserInfo($user, $password = null): self
+    public function withUserInfo(string $user, $password = null): UriInterface
     {
         $clone = clone $this;
         $clone->user = $user;
@@ -402,7 +402,7 @@ class Uri implements UriInterface
      * @return self A new instance with the specified host.
      * @throws \InvalidArgumentException for invalid hostnames.
      */
-    public function withHost($host): self
+    public function withHost(string $host): UriInterface
     {
         $clone = clone $this;
         $clone->host = $host;
@@ -447,7 +447,7 @@ class Uri implements UriInterface
      * @return self A new instance with the specified port.
      * @throws \InvalidArgumentException for invalid ports.
      */
-    public function withPort($port): self
+    public function withPort(?int $port): UriInterface
     {
         $port = $this->filterPort($port);
         $clone = clone $this;
@@ -532,7 +532,7 @@ class Uri implements UriInterface
      * @return self A new instance with the specified path.
      * @throws \InvalidArgumentException for invalid paths.
      */
-    public function withPath($path): self
+    public function withPath(string $path): UriInterface
     {
         if (!is_string($path)) {
             throw new InvalidArgumentException('Uri path must be a string');
@@ -647,7 +647,7 @@ class Uri implements UriInterface
      * @return self A new instance with the specified query string.
      * @throws \InvalidArgumentException for invalid query strings.
      */
-    public function withQuery($query): self
+    public function withQuery(string $query): UriInterface
     {
         if (!is_string($query) && !method_exists($query, '__toString')) {
             throw new InvalidArgumentException('Uri query must be a string');
@@ -712,7 +712,7 @@ class Uri implements UriInterface
      * @param string $fragment The fragment to use with the new instance.
      * @return self A new instance with the specified fragment.
      */
-    public function withFragment($fragment): self
+    public function withFragment(string $fragment): UriInterface
     {
         if (!is_string($fragment) && !method_exists($fragment, '__toString')) {
             throw new InvalidArgumentException('Uri fragment must be a string');
@@ -750,7 +750,7 @@ class Uri implements UriInterface
      *
      * @see http://tools.ietf.org/html/rfc3986#section-4.1
      */
-    public function __toString()
+    public function __toString(): string
     {
         $scheme = $this->getScheme();
         $authority = $this->getAuthority();
