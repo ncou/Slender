@@ -117,7 +117,7 @@ class Stream implements StreamInterface
      *     provided. Returns a specific key value if a key is provided and the
      *     value is found, or null if the key is not found.
      */
-    public function getMetadata($key = null)
+    public function getMetadata(string $key = null)
     {
         $this->meta = stream_get_meta_data($this->stream);
         if (is_null($key) === true) {
@@ -192,7 +192,7 @@ class Stream implements StreamInterface
      *
      * @see http://php.net/manual/en/language.oop5.magic.php#object.tostring
      */
-    public function __toString()
+    public function __toString(): string
     {
         if (!$this->isAttached()) {
             return '';
@@ -332,7 +332,7 @@ class Stream implements StreamInterface
      *
      * @throws RuntimeException on failure.
      */
-    public function seek($offset, $whence = SEEK_SET): void
+    public function seek(int $offset, int $whence = SEEK_SET): void
     {
         // Note that fseek returns 0 on success!
         if (!$this->isSeekable() || fseek($this->stream, $offset, $whence) === -1) {
@@ -368,7 +368,7 @@ class Stream implements StreamInterface
      *
      * Returns the data read from the stream, or an empty string if no bytes are available.
      */
-    public function read($length): string
+    public function read(int $length): string
     {
         if (!$this->isReadable() || ($data = fread($this->stream, (int)$length)) === false) {
             throw new RuntimeException('Could not read from stream');
@@ -386,7 +386,7 @@ class Stream implements StreamInterface
      *
      * @throws RuntimeException on failure.
      */
-    public function write($string): int
+    public function write(string $string): int
     {
         if (!is_string($string)) {
             throw new InvalidArgumentException();

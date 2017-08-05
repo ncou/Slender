@@ -15,6 +15,7 @@ namespace Slender\Http;
 
 use RuntimeException;
 use InvalidArgumentException;
+
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
@@ -223,7 +224,7 @@ class UploadedFile implements UploadedFileInterface
      * @throws RuntimeException on any error during the move operation, or on
      *     the second or subsequent call to the method.
      */
-    public function moveTo($targetPath): void
+    public function moveTo(string $targetPath): void
     {
         if ($this->moved) {
             throw new RuntimeException('Uploaded file already moved');

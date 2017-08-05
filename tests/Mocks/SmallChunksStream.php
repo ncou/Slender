@@ -33,7 +33,7 @@ class SmallChunksStream implements StreamInterface
         $this->amountToRead = self::SIZE;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         throw new \Exception('not implemented');
     }
@@ -47,42 +47,42 @@ class SmallChunksStream implements StreamInterface
         throw new \Exception('not implemented');
     }
 
-    public function eof()
+    public function eof(): bool
     {
         return $this->amountToRead === 0;
     }
 
-    public function getContents()
+    public function getContents(): string
     {
         throw new \Exception('not implemented');
     }
 
-    public function getMetadata($key = null)
+    public function getMetadata(?string $key = null)
     {
         throw new \Exception('not implemented');
     }
 
-    public function getSize()
+    public function getSize(): ?int
     {
-        return self::SIZE;
+        return self::SIZE ?? null;
     }
 
-    public function isReadable()
+    public function isReadable(): bool
     {
         return true;
     }
 
-    public function isSeekable()
+    public function isSeekable(): bool
     {
         return false;
     }
 
-    public function isWritable()
+    public function isWritable(): bool
     {
         return false;
     }
 
-    public function read($length)
+    public function read(int $length): string
     {
         $size = min($this->amountToRead, self::CHUNK_SIZE, $length);
         $this->amountToRead -= $size;
@@ -90,23 +90,23 @@ class SmallChunksStream implements StreamInterface
         return str_repeat('.', min($length, $size));
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         throw new \Exception('not implemented');
     }
 
-    public function seek($offset, $whence = SEEK_SET)
+    public function seek(int $offset, int $whence = SEEK_SET)
     {
         throw new \Exception('not implemented');
     }
 
-    public function tell()
+    public function tell(): int
     {
         throw new \Exception('not implemented');
     }
 
-    public function write($string)
+    public function write(string $string): int
     {
-        return $string;
+        return strlen($string);
     }
 }

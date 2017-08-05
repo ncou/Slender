@@ -352,13 +352,9 @@ class UriTest extends TestCase
         $this->assertAttributeEquals('/include%25s/new', 'path', $uri);
     }
 
-    /**
-     * @covers Slender\Http\Uri::withPath
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Uri path must be a string
-     */
     public function testWithPathInvalidType()
     {
+        $this->expectException(\TypeError::class);
         $this->uriFactory()->withPath(['foo']);
     }
 
@@ -399,13 +395,10 @@ class UriTest extends TestCase
         $this->assertAttributeEquals('foobar=%25match', 'query', $uri);
     }
 
-    /**
-     * @covers Slender\Http\Uri::withQuery
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Uri query must be a string
-     */
     public function testWithQueryInvalidType()
     {
+        $this->expectException(\TypeError::class);
+
         $this->uriFactory()->withQuery(['foo']);
     }
 
@@ -439,13 +432,10 @@ class UriTest extends TestCase
         $this->assertAttributeEquals('', 'fragment', $uri);
     }
 
-    /**
-     * @covers Slender\Http\Uri::withFragment
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Uri fragment must be a string
-     */
     public function testWithFragmentInvalidType()
     {
+        $this->expectException(\TypeError::class);
+
         $this->uriFactory()->withFragment(['foo']);
     }
 

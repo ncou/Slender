@@ -34,7 +34,6 @@
     ],
     "require": {
         "php": ">=7.1.0",
-        "psr/http-message": "^1.0",
         "nikic/fast-route": "^1.0",
         "container-interop/container-interop": "^1.2",
         "psr/container": "^1.0",
@@ -45,12 +44,15 @@
         "phpunit/phpunit": "^6.2"
     },
     "provide": {
-        "psr/http-message-implementation": "1.0"
+        "psr/http-message-implementation": "~1.0.0"
     },
     "autoload": {
         "psr-4": {
             "Slender\\": "Slender",
-            "Slender\\Utility\\": "Slender/Utilities"
+            "Slender\\Utility\\": "Slender/Utilities",
+            "Psr\\": "Slender/Interfaces/Psr",
+            "Psr\\Http\\": "Slender/Interfaces/Psr",
+            "Psr\\Http\\Message\\": "Slender/Interfaces/Psr"
         }
     },
     "scripts": {

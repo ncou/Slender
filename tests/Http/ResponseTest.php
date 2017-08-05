@@ -97,12 +97,10 @@ class ResponseTest extends TestCase
         $response->withStatus(800);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage ReasonPhrase must be a string
-     */
     public function testWithStatusInvalidReasonPhraseThrowsException()
     {
+        $this->expectException(\TypeError::class);
+
         $response = new Response();
         $response->withStatus(200, null);
     }
@@ -330,7 +328,7 @@ class ResponseTest extends TestCase
 
     public function testWithInvalidJsonThrowsException()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(\TypeError::class);
 
         $data = ['foo' => 'bar' . chr(233)];
         $this->assertEquals('bar' . chr(233), $data['foo']);

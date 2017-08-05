@@ -10,5 +10,5 @@ interface CookiesInterface
     public function get(string $name, $default = null);
     public function set(string $name, $value);
     public function toHeaders();
-    public static function parseHeader($header);
+    public static function parseHeader($header): array;
 }

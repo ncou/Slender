@@ -185,7 +185,7 @@ class Response extends Message implements ResponseInterface
      * @return static
      * @throws \InvalidArgumentException For invalid status code arguments.
      */
-    public function withStatus($code, $reasonPhrase = ''): self
+    public function withStatus(int $code, string $reasonPhrase = ''): ResponseInterface
     {
         $code = $this->filterStatus($code);
 
@@ -402,7 +402,7 @@ class Response extends Message implements ResponseInterface
      * Convert response to string.
      * Note: This method is not part of the PSR-7 standard.
      */
-    public function __toString()
+    public function __toString(): string
     {
         $output = sprintf(
             'HTTP/%s %s %s',
